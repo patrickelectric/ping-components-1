@@ -33,8 +33,13 @@ RESOURCES += \
 
 include(lib/ping-protocol-cpp/ping.pri)
 
-build_pass:CONFIG(debug, debug|release) {
+CONFIG(debug, debug|release) {
     message("Debug Build !")
+    # Add coverage
+    QMAKE_CXXFLAGS += -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -Weffc++
+    QMAKE_CXXFLAGS += -fprofile-arcs -ftest-coverage
+    QMAKE_CXXFLAGS += -O0
+    LIBS += -lgcov
     win32 {
         # Windows debug
         CONFIG += console
