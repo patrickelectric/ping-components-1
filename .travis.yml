@@ -27,6 +27,21 @@ matrix:
           packages:
             - g++-7
       env:
+        - DESC="Check codecov"
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+        - QTV="qt510"
+        - CODECOV="true"
+
+    - os: linux
+      dist: trusty
+      sudo: require
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+      env:
         - DESC="AppImage deploy"
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
         - QTV="qt510"
@@ -92,8 +107,15 @@ script:
     git submodule update;
     mkdir build;
     cd build;
-    qmake ..;
+    if [ $CODECOV ]; then
+      qmake .. CONFIG+=debug;
+    else
+      qmake ..;
+    fi;
     make;
+  fi
+
+- if [[ "${TRAVIS_OS_NAME}" = "linux" && -z $TEST && -z $CODECOV ]]; then
     mkdir deploy;
     ls ../qml/;
     ls ../qml/imgs;
@@ -115,6 +137,7 @@ script:
       mv pingviewer-x86_64.AppImage ./pingviewer-x86_64_QGC.AppImage;
     fi;
   fi
+
 - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     git submodule init;
     git submodule update;
@@ -131,10 +154,13 @@ script:
   fi
 
 after_success:
-- if [ -z $TEST ]; then
+- if [ $CODECOV ]; then
+    bash <(curl -s https://codecov.io/bash);
+  fi
+- if [[ -z $TEST && -z $CODECOV ]]; then
     wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh;
   fi
-- if [[ "${TRAVIS_OS_NAME}" = "linux" && -z $TEST ]]; then
+- if [[ "${TRAVIS_OS_NAME}" = "linux" && -z $TEST && -z $CODECOV ]]; then
     bash ./upload.sh ./pingviewer*.AppImage;
   fi
 - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then bash ./upload.sh pingviewer*.dmg*; fi
