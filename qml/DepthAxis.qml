@@ -7,9 +7,11 @@ import Logger 1.0
 Item {
     id: root
 
+    // these are actually all in meters right now
     property var start_mm: 0
     property var end_mm: 0
     property var length_mm: end_mm - start_mm
+    property var depth_mm: 0
 
     property var validIncrements: [0.1, 0.25, 0.5, 1, 2, 5, 10]
 
@@ -33,8 +35,6 @@ Item {
     function recalc() {
         increment = getIncrement()
         numTicks = length_mm / increment + 1
-        console.log(start_mm, end_mm, length_mm, increment)
-
     }
 
     onStart_mmChanged: {
@@ -102,19 +102,27 @@ Item {
         }
     }
 
-        Column {
-            anchors.fill:parent
-            Repeater {
-                model: numTicks
-                delegate: tickMark
-            }
-        }
+    Image {
+        anchors.right: parent.right
+        source: "/icons/depth_indicator.svg"
+        height: 20
+        width: 20
+        y: (parent.height / length_mm) * depth_mm - height / 2
+    }
 
-        Column {
-            anchors.fill:parent
-            Repeater {
-                model: numTicks
-                delegate: tickLabel
-            }
+    Column {
+        anchors.fill:parent
+        Repeater {
+            model: numTicks
+            delegate: tickMark
         }
+    }
+
+    Column {
+        anchors.fill:parent
+        Repeater {
+            model: numTicks
+            delegate: tickLabel
+        }
+    }
 }

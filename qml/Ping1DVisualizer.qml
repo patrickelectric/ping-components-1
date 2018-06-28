@@ -23,6 +23,7 @@ Item {
     }
 
     function setDepth(depth) {
+        depthAxis.depth_mm = depth
         readout.value = depth
     }
 
