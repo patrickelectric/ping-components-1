@@ -83,13 +83,12 @@ Item {
                     }
                 }
             }
+        }
 
-            DepthAxis {
-                id: depthAxis
-                anchors.fill:parent
-                start_mm: waterfall.minDepthToDraw
-                end_mm: waterfall.maxDepthToDraw
-            }
+        DepthAxis {
+            id: depthAxis
+            start_mm: waterfall.minDepthToDraw
+            end_mm: waterfall.maxDepthToDraw
         }
 
         Chart {

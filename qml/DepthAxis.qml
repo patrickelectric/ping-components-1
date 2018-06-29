@@ -19,7 +19,31 @@ Item {
     property int maxTicks: 10
     property var increment: 1
 
-    property var color: "white"
+    property var color: Style.color
+    width: textMetrics.width < maxTextMetrics.width ? textMetrics.width : maxTextMetrics.width
+    Layout.maximumWidth: textMetrics.width < maxTextMetrics.width ? textMetrics.width : maxTextMetrics.width
+    Layout.minimumWidth: textMetrics.width < maxTextMetrics.width ? textMetrics.width : maxTextMetrics.width
+
+    /*
+    Rectangle {
+        anchors.fill: parent
+        gradient: Gradient {
+            GradientStop { position: 0.1; color: 'gray'}
+            GradientStop { position: 0.0; color: 'black'}
+        }
+    }*/
+
+    TextMetrics {
+        id: maxTextMetrics
+        font.bold: true
+        text: "999.9"
+    }
+
+    TextMetrics {
+        id: textMetrics
+        font.bold: true
+        text: end_mm.toFixed(1)
+    }
 
     function getIncrement() {
         var inc;
@@ -65,7 +89,7 @@ Item {
 
             Rectangle {
                 id: tick
-                width: 15
+                width: root.width
                 height: 2
                 Layout.alignment: Qt.AlignRight | Qt.AlignBottom
                 color: root.color
@@ -90,24 +114,44 @@ Item {
                 id: label
                 //anchors.fill:parent // this text object is not anchored
                 //Layout.fillHeight: true
-                Layout.alignment: Qt.AlignRight | Qt.AlignBottom
-                Layout.bottomMargin: 5
-                Layout.rightMargin: 7
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
+                //Layout.bottomMargin: 5
+                //Layout.rightMargin: 7
                 text: lastIndex ? end_mm.toFixed(1) : start_mm + (index + 1) * increment
                 color: root.color
                 font.bold: true
-                font.pointSize: 22
+                //font.pointSize: 22
                 visible: parent.height >= height
             }
         }
     }
 
+    /*
     Image {
         anchors.right: parent.right
         source: "/icons/depth_indicator.svg"
         height: 20
         width: 20
         y: (parent.height / length_mm) * depth_mm - height / 2
+    }*/
+
+    Canvas {
+        id: depthPointer
+        y: (parent.height / length_mm) * depth_mm - height / 2
+        z: root.z + 1
+        width: root.width
+        height: root.width
+        onWidthChanged: requestPaint()
+        onPaint: {
+            print(width, height)
+            var ctx = getContext("2d")
+            ctx.fillStyle = "red"
+            ctx.beginPath()
+            ctx.moveTo(width/2, height/3)
+            ctx.lineTo(0, height/2)
+            ctx.lineTo(width/2, height*2/3)
+            ctx.fill()
+        }
     }
 
     Column {
