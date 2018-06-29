@@ -106,7 +106,8 @@ Item {
             anchors.right: parent.right
             height: lastIndex ? remainingHeight() : nominalHeight()
             Layout.fillHeight: true
-            Layout.alignment: Qt.AlignRight | Qt.AlignBottom
+            width: root.width
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
 
             property var lastIndex: (index + 1) == numTicks
 
@@ -114,7 +115,10 @@ Item {
                 id: label
                 //anchors.fill:parent // this text object is not anchored
                 //Layout.fillHeight: true
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
+                Layout.alignment: Qt.AlignBottom
+                horizontalAlignment: Text.AlignHCenter
+                Layout.fillWidth: true
+                //width: parent.width
                 //Layout.bottomMargin: 5
                 //Layout.rightMargin: 7
                 text: lastIndex ? end_mm.toFixed(1) : start_mm + (index + 1) * increment
@@ -122,6 +126,11 @@ Item {
                 font.bold: true
                 //font.pointSize: 22
                 visible: parent.height >= height
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: '#101010a0'
+                }
             }
         }
     }
