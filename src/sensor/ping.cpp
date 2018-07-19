@@ -47,8 +47,18 @@ Ping::Ping() : Sensor()
         {
             qCWarning(PING_PROTOCOL_PING) << "Can't write in this type of link.";
             _requestTimer.stop();
+            _periodicRequestTimer.stop();
             return;
         }
+
+        if(!link()->isOpen())
+        {
+            qCCritical(PING_PROTOCOL_PING) << "Can't write, port is not open!";
+            _requestTimer.stop();
+            _periodicRequestTimer.stop();
+            return;
+        }
+
         //request(Ping1DNamespace::Pcb_temperature);
         request(Ping1DNamespace::Processor_temperature);
         request(Ping1DNamespace::Voltage_5);
