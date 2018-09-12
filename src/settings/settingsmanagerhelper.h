@@ -34,7 +34,7 @@ public: \
     void NAME(TYPE value) { \
         if(_ ## NAME == value) { return; }\
         _ ## NAME = value; \
-        _settings.setValue(QStringLiteral(#NAME), value); \
+        _settings.setValue(QStringLiteral(#NAME), qVariantFromValue(value)); \
         qDebug(SETTINGSMANAGER) << QStringLiteral("Save %1 with:").arg(#NAME) << value;\
         emit NAME ## Changed(); \
     } \
