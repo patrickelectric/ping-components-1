@@ -72,7 +72,7 @@ Ping::Ping() : Sensor()
 
     //connectLink(LinkType::Serial, {"/dev/ttyUSB2", "115200"});
 
-    connect(&_detector, &ProtocolDetector::connectionDetected, this, &Ping::connectLink);
+    connect(&_detector, &ProtocolDetector::connectionDetected, this, &Ping::connectLink2);
     _detector.start();
 
     connect(this, &Ping::autoDetectUpdate, this, [this](bool autodetect) {
@@ -95,6 +95,16 @@ void Ping::connectLink(LinkType connType, const QStringList& connString)
     }
     setAutoDetect(false);
     Sensor::connectLink(LinkConfiguration{connType, connString}, {LinkType::File, {FileManager::self()->createFileName(FileManager::Folder::SensorLog), QStringLiteral("w")}});
+    _periodicRequestTimer.start();
+}
+
+void Ping::connectLink2(LinkConfiguration linkConfig)
+{
+    if(_detector.isRunning()) {
+        _detector.requestInterruption();
+    }
+    setAutoDetect(false);
+    Sensor::connectLink(linkConfig, {LinkType::File, {FileManager::self()->createFileName(FileManager::Folder::SensorLog), QStringLiteral("w")}});
     _periodicRequestTimer.start();
 }
 
