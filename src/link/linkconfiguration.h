@@ -18,21 +18,6 @@ public:
         QStringList args;
         QString name;
         LinkType type = LinkType::None;
-
-        /*
-        bool operator == (const LinkConf& other)
-        {
-            return (name == other.name) \
-                && (type == other.type) \
-                && (args == other.args) \
-                ;
-        }
-
-        operator QString() const
-        {
-            QString text(QStringLiteral("LinkConf{Name: %1, LinkType: %2, Arguments: (%3)}"));
-            return text.arg(name, QString::number(type), args.join(":"));
-        }*/
     };
 
     enum Error {
@@ -95,14 +80,6 @@ public:
             ;
     }
 
-    /*
-    operator QString() const
-    {
-        QString text(QStringLiteral("LinkConfiguration{Name: %1, LinkType: %2, Arguments: (%3)}"));
-        return text.arg(name(), QString::number(type()), args()->join(":"));
-    }
-    */
-
     QString serialPort() { return (_linkConf.args.size() ? _linkConf.args[0] : QString() ); }
     int serialBaudrate() { return (_linkConf.args.size() > 1 ? _linkConf.args[1].toInt() : 0 ); }
 
@@ -113,33 +90,29 @@ private:
     LinkConf _linkConf;
 };
 
-QDebug operator<< (QDebug d, const LinkConfiguration& other);
+QDebug operator<<(QDebug d, const LinkConfiguration& other);
 QDataStream& operator<<(QDataStream &out, const LinkConfiguration linkConfiguration);
 QDataStream& operator>>(QDataStream &in, LinkConfiguration &linkConfiguration);
 
 Q_DECLARE_METATYPE(LinkConfiguration)
-Q_DECLARE_METATYPE(LinkConfiguration::LinkConf)
 
+// This allows us to register LinkConfiguration before singletons and main function
 struct LinkConfigurationRegisterStruct
 {
     LinkConfigurationRegisterStruct()
     {
-        std::cout << "Running...\n";
-        static QBasicAtomicInt metatype_id = Q_BASIC_ATOMIC_INITIALIZER(0);
-        if (const int id = metatype_id.loadAcquire()) {
-            std::cout << "NOOPS\n";
+        static QBasicAtomicInt metatypeId = Q_BASIC_ATOMIC_INITIALIZER(0);
+        if (const int id = metatypeId.loadAcquire()) {
             return;
         }
-        std::cout << "YEP\n";
+
         const int newId = qRegisterMetaType<LinkConfiguration>("LinkConfiguration");
-        metatype_id.storeRelease(newId);
+        metatypeId.storeRelease(newId);
         qRegisterMetaTypeStreamOperators<LinkConfiguration>("LinkConfiguration");
     }
 };
 
 namespace
 {
-    // Put in anonymous namespace, because this variable should not be accessed
-    // from other translation units
-    LinkConfigurationRegisterStruct foo;
+    LinkConfigurationRegisterStruct _linkConfigurationRegisterStruct;
 }
