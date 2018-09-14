@@ -23,7 +23,6 @@ const QStringList ProtocolDetector::_invalidSerialPortNames(
 });
 
 ProtocolDetector::ProtocolDetector(){
-    connect(this, &QThread::finished, this, [this] { _active = false; });
     _linkConfigs.append({
         {LinkType::Udp, {"192.168.2.2", "9000"}, "BlueRov2 standard connection"},
         {LinkType::Udp, {"127.0.0.1", "1234"}, "Development port"}
@@ -35,11 +34,10 @@ void ProtocolDetector::scan()
     _active = true;
 
     // Scan until we find a ping, then stop
-    while (_active && !currentThread()->isInterruptionRequested()) {
+    while (_active) {
         // Not found on UDP, now try all available serial ports
         //auto portsInfo = QSerialPortInfo::availablePorts();
         //{115200, 921600}
-
         auto linksConf = updateLinkConfigurations(_linkConfigs);
         for(LinkConfiguration& linkConf : linksConf) {
             if(linkConf.type() == LinkType::Udp) {
@@ -54,9 +52,10 @@ void ProtocolDetector::scan()
                 qDebug(PING_PROTOCOL_PROTOCOLDETECTOR) << "Couldn't handle configuration:" << linkConf;
             }
             qCDebug(PING_PROTOCOL_PROTOCOLDETECTOR) << "Couldn't detect ping.";
-            msleep(500);
+            QThread::msleep(500);
         }
-        msleep(500);
+        QThread::msleep(500);
+        qCDebug(PING_PROTOCOL_PROTOCOLDETECTOR) << "POTATO";
     }
     qCDebug(PING_PROTOCOL_PROTOCOLDETECTOR) << "Scan finished.";
 }
@@ -208,7 +207,7 @@ bool ProtocolDetector::canOpenPort(QSerialPortInfo& port, int msTimeout)
     // Wait for msTimeout
     float waitForTenthOfTimeout = 0;
     while(waitForTenthOfTimeout < 10 && !future.isFinished()) {
-        msleep(msTimeout/10.0f);
+        QThread::msleep(msTimeout/10.0f);
         qCDebug(PING_PROTOCOL_PROTOCOLDETECTOR) << "Waiting port to open.. " << waitForTenthOfTimeout << port.portName();
         waitForTenthOfTimeout += 1;
     }

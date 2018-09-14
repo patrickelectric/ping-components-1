@@ -8,9 +8,8 @@
 
 class QSerialPortInfo;
 
-/// This class will scan network ports and serial ports for a ping device
 /// TODO subclass and support discovery of other protocols/devices
-class ProtocolDetector : public QThread
+class ProtocolDetector : public QObject
 {
     Q_OBJECT
 public:
@@ -26,13 +25,16 @@ public:
         return _invalidSerialPortNames;
     };
     bool isValidPort(const QSerialPortInfo& serialPortInfo) const;
+    bool isRunning() const { return _active; };
+    void stop() { _active = false; };
+
+public slots:
     void scan();
 
 signals:
     void connectionDetected(LinkConfiguration linkConf);
 
 protected:
-    void run() { scan(); }
     bool canOpenPort(QSerialPortInfo& port, int msTimeout);
     bool checkSerial(LinkConfiguration& linkConf);
     bool checkUdp(LinkConfiguration& linkConf);

@@ -13,6 +13,7 @@ Q_LOGGING_CATEGORY(PING_PROTOCOL_SENSOR, "ping.protocol.sensor")
 Sensor::Sensor() :
     _autodetect(true)
     ,_connected(false)
+    ,_detector(new ProtocolDetector())
     ,_linkIn(new Link(LinkType::Serial, "Default"))
     ,_linkOut(nullptr)
     ,_parser(nullptr)
@@ -29,7 +30,14 @@ Sensor::Sensor() :
 
     auto config = SettingsManager::self()->lastLinkConfiguration();
     qCDebug(PING_PROTOCOL_SENSOR) << "Loading last configuration connection from settings:" << config;
-    _detector.appendConfiguration(config);
+    _detector->appendConfiguration(config);
+
+    auto detectorThread = new QThread(this);
+    _detector->moveToThread(detectorThread);
+    connect(detectorThread, &QThread::finished, _detector, &QObject::deleteLater);
+    connect(detectorThread, &QThread::started, _detector, &ProtocolDetector::scan);
+    connect(detectorThread, &QThread::finished, detectorThread, &QObject::deleteLater);
+    detectorThread->start();
 }
 
 // TODO rework this after sublasses and parser rework
@@ -125,6 +133,4 @@ void Sensor::setAutoDetect(bool autodetect)
 
 Sensor::~Sensor()
 {
-    _detector.terminate();
-    _detector.wait();
 }

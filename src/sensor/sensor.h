@@ -83,7 +83,7 @@ public:
 protected:
     bool _autodetect;
     bool _connected;
-    ProtocolDetector _detector;
+    ProtocolDetector* _detector;
     QSharedPointer<Link> _linkIn;
     QSharedPointer<Link> _linkOut;
     Parser* _parser; // communication implementation
