@@ -40,7 +40,8 @@ void ProtocolDetector::scan()
         //auto portsInfo = QSerialPortInfo::availablePorts();
         //{115200, 921600}
 
-        for(LinkConfiguration& linkConf : updateLinkConfigurations(_linkConfigs)) {
+        auto linksConf = updateLinkConfigurations(_linkConfigs);
+        for(LinkConfiguration& linkConf : linksConf) {
             if(linkConf.type() == LinkType::Udp) {
                 if(checkUdp(linkConf)) {
                     break;
@@ -52,10 +53,12 @@ void ProtocolDetector::scan()
             } else {
                 qDebug(PING_PROTOCOL_PROTOCOLDETECTOR) << "Couldn't handle configuration:" << linkConf;
             }
+            qCDebug(PING_PROTOCOL_PROTOCOLDETECTOR) << "Couldn't detect ping.";
+            msleep(500);
         }
-        qCDebug(PING_PROTOCOL_PROTOCOLDETECTOR) << "Couldn't detect ping.";
         msleep(500);
     }
+    qCDebug(PING_PROTOCOL_PROTOCOLDETECTOR) << "Scan finished.";
 }
 
 QVector<LinkConfiguration> ProtocolDetector::updateLinkConfigurations(QVector<LinkConfiguration>& linkConfig) const
