@@ -66,9 +66,17 @@ LinkConfiguration::Error LinkConfiguration::error() const
     return NoErrors;
 }
 
-QDataStream& operator<<(QDataStream &out, LinkConfiguration &linkConfiguration)
+QDebug operator<< (QDebug d, const LinkConfiguration& other)
 {
-    out << QVariant(linkConfiguration.configurationStructPtr()->name);
+    QString text(QStringLiteral("LinkConfiguration{Name: %1, LinkType: %2, Arguments: (%3)}"));
+    d << text.arg(other.name(), QString::number(other.type()), other.args()->join(":"));;
+    return d;
+}
+
+QDataStream& operator<<(QDataStream &out, const LinkConfiguration linkConfiguration)
+{
+    qDebug() << "<<" << linkConfiguration;
+    out << linkConfiguration.configurationStructPtr()->name;
     out << QVariant(linkConfiguration.configurationStructPtr()->args);
     out << QVariant(linkConfiguration.configurationStructPtr()->type);
     return out;
@@ -76,12 +84,17 @@ QDataStream& operator<<(QDataStream &out, LinkConfiguration &linkConfiguration)
 
 QDataStream& operator>>(QDataStream &in, LinkConfiguration &linkConfiguration)
 {
-    QVariant variantName, variantArgs, variantType;
-    in >> variantName;
+    QString name;
+    QVariant variantArgs, variantType;
+    in >> name;
     in >> variantArgs;
     in >> variantType;
+    qDebug() << ":" << name;
+    qDebug() << ":" << variantArgs;
+    qDebug() << ":" << variantType;
     linkConfiguration = LinkConfiguration(
-        variantType.value<LinkType>(), variantArgs.toStringList(), variantName.toString()
+        variantType.value<LinkType>(), variantArgs.toStringList(), name
     );
+    qDebug() << ">>" << linkConfiguration;
     return in;
 }

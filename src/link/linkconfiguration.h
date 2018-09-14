@@ -72,7 +72,7 @@ public:
     const QStringList createFullConfStringList() const;
 
     LinkConf configurationStruct() const { return _linkConf; };
-    LinkConf* configurationStructPtr() { return &_linkConf; };
+    const LinkConf* configurationStructPtr() const { return &_linkConf; };
 
     Q_INVOKABLE bool isValid() const { return error() <= NoErrors; }
 
@@ -95,11 +95,13 @@ public:
             ;
     }
 
+    /*
     operator QString() const
     {
         QString text(QStringLiteral("LinkConfiguration{Name: %1, LinkType: %2, Arguments: (%3)}"));
         return text.arg(name(), QString::number(type()), args()->join(":"));
     }
+    */
 
     QString serialPort() { return (_linkConf.args.size() ? _linkConf.args[0] : QString() ); }
     int serialBaudrate() { return (_linkConf.args.size() > 1 ? _linkConf.args[1].toInt() : 0 ); }
@@ -111,7 +113,8 @@ private:
     LinkConf _linkConf;
 };
 
-QDataStream& operator<<(QDataStream &out, LinkConfiguration &linkConfiguration);
+QDebug operator<< (QDebug d, const LinkConfiguration& other);
+QDataStream& operator<<(QDataStream &out, const LinkConfiguration linkConfiguration);
 QDataStream& operator>>(QDataStream &in, LinkConfiguration &linkConfiguration);
 
 Q_DECLARE_METATYPE(LinkConfiguration)
@@ -140,26 +143,3 @@ namespace
     // from other translation units
     LinkConfigurationRegisterStruct foo;
 }
-/*
-#define Q_DECLARE_METATYPE_STREAM_OPERATORS(TYPE)                       \
-    QT_BEGIN_NAMESPACE                                                  \
-    template <>                                                         \
-    struct QMetaTypeId2< TYPE >                                          \
-    {                                                                   \
-        enum { Defined = 1 };                                           \
-        static int qt_metatype_id()                                     \
-            {                                                           \
-                static QBasicAtomicInt metatype_id = Q_BASIC_ATOMIC_INITIALIZER(0); \
-                if (const int id = metatype_id.loadAcquire())           \
-                    return id;                                          \
-                const int newId = qRegisterMetaType< TYPE >(#TYPE,      \
-                              reinterpret_cast< TYPE *>(quintptr(-1))); \
-                metatype_id.storeRelease(newId);                        \
-                qRegisterMetaTypeStreamOperators<TYPE>(#TYPE);\
-                return newId;                                           \
-            }                                                           \
-    };                                                                  \
-    int id = qMetaTypeId2<TYPE>();                                          \
-    QT_END_NAMESPACE
-
-Q_DECLARE_METATYPE_STREAM_OPERATORS(LinkConfiguration)*/
