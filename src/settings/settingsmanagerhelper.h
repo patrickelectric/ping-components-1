@@ -18,7 +18,7 @@
  *            _myName = defaultValue; \
  *            myType(_myType); \
  *        } \
- *        qCDebug(SETTINGSMANAGER) << QStringLiteral("Load %1 with:").arg("myName") << value;\
+ *        qCDebug(SETTINGSMANAGER) << QStringLiteral("Load %1 with:").arg("myName") << _myName;\
  *        return _myType; \
  *    }
  *    // Change property value
@@ -45,7 +45,7 @@ public: \
             _ ## NAME = DEFAULT_VALUE; \
             NAME(_ ## NAME); \
         } \
-        qCDebug(SETTINGSMANAGER) << QStringLiteral("Load %1 with:").arg(#NAME) << value;\
+        qCDebug(SETTINGSMANAGER) << QStringLiteral("Load %1 with:").arg(#NAME) << _ ## NAME;\
         return _ ## NAME; \
     } \
     void NAME(TYPE value) { \
