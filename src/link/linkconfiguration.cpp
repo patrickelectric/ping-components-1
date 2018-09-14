@@ -65,3 +65,23 @@ LinkConfiguration::Error LinkConfiguration::error() const
 
     return NoErrors;
 }
+
+QDataStream& operator<<(QDataStream &out, LinkConfiguration &linkConfiguration)
+{
+    out << QVariant(linkConfiguration.configurationStructPtr()->name);
+    out << QVariant(linkConfiguration.configurationStructPtr()->args);
+    out << QVariant(linkConfiguration.configurationStructPtr()->type);
+    return out;
+}
+
+QDataStream& operator>>(QDataStream &in, LinkConfiguration &linkConfiguration)
+{
+    QVariant variantName, variantArgs, variantType;
+    in >> variantName;
+    in >> variantArgs;
+    in >> variantType;
+    linkConfiguration = LinkConfiguration(
+        variantType.value<LinkType>(), variantArgs.toStringList(), variantName.toString()
+    );
+    return in;
+}
