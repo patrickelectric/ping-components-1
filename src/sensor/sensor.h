@@ -2,6 +2,7 @@
 
 #include <QPointer>
 
+#include "detector.h"
 #include "link.h"
 #include "parsers/parser.h"
 
@@ -82,6 +83,7 @@ public:
 protected:
     bool _autodetect;
     bool _connected;
+    ProtocolDetector _detector;
     QSharedPointer<Link> _linkIn;
     QSharedPointer<Link> _linkOut;
     Parser* _parser; // communication implementation

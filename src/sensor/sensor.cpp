@@ -3,6 +3,7 @@
 #include <QLoggingCategory>
 
 #include "sensor.h"
+#include "settingsmanager.h"
 
 #include "pingmessage/pingmessage.h"
 #include "pingmessage/pingmessage_ping1D.h"
@@ -25,6 +26,10 @@ Sensor::Sensor() :
         this->_connected = false;
         emit this->connectionUpdate();
     });
+
+    auto config = SettingsManager::self()->lastLinkConfiguration();
+    qCDebug(PING_PROTOCOL_SENSOR) << "Loading last configuration connection from settings:" << config;
+    _detector.appendConfiguration(config);
 }
 
 // TODO rework this after sublasses and parser rework
@@ -60,6 +65,7 @@ void Sensor::connectLink(const LinkConfiguration& conConf, const LinkConfigurati
     emit connectionOpen();
 
     // Disable log if playing one
+    // Only save last link configuration if it's not a log
     if(link()->type() == LinkType::File) {
         if(!linkLog()) {
             return;
@@ -69,13 +75,15 @@ void Sensor::connectLink(const LinkConfiguration& conConf, const LinkConfigurati
             linkLog()->finishConnection();
             _linkOut.clear();
         }
-    } else { // Start log, if not playing one
+    } else {
         if(!logConf.isValid()) {
             QString fileName = QStringLiteral("%1.%2").arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd-hhmmsszzz")), "bin");
             connectLinkLog({LinkType::File, {fileName, QStringLiteral("w")}});
         } else {
             connectLinkLog(logConf);
         }
+
+        SettingsManager::self()->lastLinkConfiguration(*link()->configuration());
     }
 }
 
@@ -117,4 +125,6 @@ void Sensor::setAutoDetect(bool autodetect)
 
 Sensor::~Sensor()
 {
+    _detector.terminate();
+    _detector.wait();
 }
