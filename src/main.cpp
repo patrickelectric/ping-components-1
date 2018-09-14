@@ -29,8 +29,8 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("Ping Viewer");
 
     QQuickStyle::setStyle("Material");
-
     qRegisterMetaType<AbstractLinkNamespace::LinkType>();
+    //qRegisterMetaType<LinkConfiguration>("LinkConfiguration");
     qmlRegisterSingletonType<FileManager>("FileManager", 1, 0, "FileManager", FileManager::qmlSingletonRegister);
     qmlRegisterSingletonType<Logger>("Logger", 1, 0, "Logger", Logger::qmlSingletonRegister);
     qmlRegisterSingletonType<SettingsManager>("SettingsManager", 1, 0, "SettingsManager", SettingsManager::qmlSingletonRegister);
