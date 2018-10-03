@@ -67,7 +67,7 @@ Ping::Ping() : Sensor()
 
         // Set ping configuration
         set_mode_auto(_pingConfiguration.automaticMode);
-        setPollFrequency(_pingConfiguration.frequency);
+        setPingFrequency(_pingConfiguration.frequency);
         set_speed_of_sound(_pingConfiguration.speedOfSound);
 
         // If it's running in automatic mode
@@ -445,7 +445,7 @@ void Ping::setPingFrequency(float pingFrequency)
         set_msec_per_ping(periodMilliseconds);
         do_continuous_start(Ping1DNamespace::Profile);
 
-        _pingConfiguration.frequency = pollFrequency;
+        _pingConfiguration.frequency = pingFrequency;
         updatePingConfigurationSettings();
     }
     qCDebug(PING_PROTOCOL_PING) << "Ping frequency" << pingFrequency;
