@@ -19,6 +19,7 @@ const int Ping::_pingMaxFrequency = 50;
 
 Ping::Ping() : Sensor()
 {
+    checkPingConfigurationSettings();
     _points.reserve(_num_points);
     for (int i = 0; i < _num_points; i++) {
         _points.append(0);
@@ -63,7 +64,21 @@ Ping::Ping() : Sensor()
         request(Ping1DNamespace::Fw_version);
         request(Ping1DNamespace::Device_id);
         request(Ping1DNamespace::Speed_of_sound);
-        setPollFrequency(15);
+
+        // Set ping configuration
+        set_mode_auto(_pingConfiguration.automaticMode);
+        setPollFrequency(_pingConfiguration.frequency);
+        set_speed_of_sound(_pingConfiguration.speedOfSound);
+
+        // If it's running in automatic mode
+        // no further configuration is necessary
+        if(_pingConfiguration.automaticMode) {
+            return;
+        }
+        set_gain_index(_pingConfiguration.gainIndex);
+        set_start_mm(_pingConfiguration.startDistance);
+        set_length_mm(_pingConfiguration.lengthDistance);
+
     });
 
     connect(this, &Ping::autoDetectUpdate, this, [this](bool autodetect) {
@@ -84,6 +99,33 @@ Ping::Ping() : Sensor()
     if(!detector()->checkLink(config)) {
         detectorThread()->start();
     }
+}
+
+void Ping::checkPingConfigurationSettings()
+{
+    QVariant pingConfigurationVariant = SettingsManager::self()->getMapValue({"Ping", "PingConfiguration", "0"});
+    if(pingConfigurationVariant.type() != QVariant::Map) {
+        qCWarning(PING_PROTOCOL_PING) << "No valid PingConfiguration in settings." << pingConfigurationVariant.type();
+        return;
+    }
+
+    auto map = pingConfigurationVariant.toMap();
+    _pingConfiguration.automaticMode = map["automaticMode"].toBool();
+    _pingConfiguration.frequency = map["frequency"].toInt();
+    _pingConfiguration.gainIndex = map["gainIndex"].toInt();
+    _pingConfiguration.lengthDistance = map["lengthDistance"].toInt();
+    _pingConfiguration.speedOfSound = map["speedOfSound"].toInt();
+    _pingConfiguration.startDistance = map["startDistance"].toInt();
+}
+
+void Ping::updatePingConfigurationSettings()
+{
+    SettingsManager::self()->setMapValue({"Ping", "PingConfiguration", "0", "automaticMode"}, _pingConfiguration.automaticMode);
+    SettingsManager::self()->setMapValue({"Ping", "PingConfiguration", "0", "frequency"}, _pingConfiguration.frequency);
+    SettingsManager::self()->setMapValue({"Ping", "PingConfiguration", "0", "gainIndex"}, _pingConfiguration.gainIndex);
+    SettingsManager::self()->setMapValue({"Ping", "PingConfiguration", "0", "lengthDistance"}, _pingConfiguration.lengthDistance);
+    SettingsManager::self()->setMapValue({"Ping", "PingConfiguration", "0", "speedOfSound"}, _pingConfiguration.speedOfSound);
+    SettingsManager::self()->setMapValue({"Ping", "PingConfiguration", "0", "startDistance"}, _pingConfiguration.startDistance);
 }
 
 void Ping::connectLink(LinkType connType, const QStringList& connString)
@@ -402,6 +444,9 @@ void Ping::setPingFrequency(float pingFrequency)
         qCDebug(PING_PROTOCOL_PING) << "Setting frequency(Hz) and period(ms):" << pingFrequency << periodMilliseconds;
         set_msec_per_ping(periodMilliseconds);
         do_continuous_start(Ping1DNamespace::Profile);
+
+        _pingConfiguration.frequency = pollFrequency;
+        updatePingConfigurationSettings();
     }
     qCDebug(PING_PROTOCOL_PING) << "Ping frequency" << pingFrequency;
 }

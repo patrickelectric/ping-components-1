@@ -136,6 +136,9 @@ public:
         m.updateChecksum();
         writeMessage(m);
         request(Ping1DNamespace::Range);
+
+        _pingConfiguration.startDistance = start_mm;
+        updatePingConfigurationSettings();
     }
     Q_PROPERTY(int start_mm READ start_mm WRITE set_start_mm NOTIFY scanStartUpdate)
 
@@ -159,6 +162,9 @@ public:
         m.updateChecksum();
         writeMessage(m);
         request(Ping1DNamespace::Range);
+
+        _pingConfiguration.lengthDistance = length_mm;
+        updatePingConfigurationSettings();
     }
     Q_PROPERTY(int length_mm READ length_mm WRITE set_length_mm NOTIFY scanLengthUpdate)
 
@@ -181,6 +187,9 @@ public:
         m.updateChecksum();
         writeMessage(m);
         request(Ping1DNamespace::Gain_index);
+
+        _pingConfiguration.gainIndex = gain_index;
+        updatePingConfigurationSettings();
     }
     Q_PROPERTY(int gain_index READ gain_index WRITE set_gain_index NOTIFY gainIndexUpdate)
 
@@ -212,6 +221,9 @@ public:
         m.updateChecksum();
         writeMessage(m);
         request(Ping1DNamespace::Mode_auto);
+
+        _pingConfiguration.automaticMode = mode_auto;
+        updatePingConfigurationSettings();
     }
     Q_PROPERTY(bool mode_auto READ mode_auto WRITE set_mode_auto NOTIFY modeAutoUpdate)
 
@@ -282,6 +294,9 @@ public:
         m.updateChecksum();
         writeMessage(m);
         request(Ping1DNamespace::Speed_of_sound);
+
+        _pingConfiguration.speedOfSound = speed_of_sound;
+        updatePingConfigurationSettings();
     }
     Q_PROPERTY(int speed_of_sound READ speed_of_sound WRITE set_speed_of_sound NOTIFY speedOfSoundUpdate)
 
@@ -477,8 +492,20 @@ private:
     void firmwareUpdatePercentage();
     void flash(const QString& portLocation, const QString& firmwareFile, int baud = 57600, bool verify = true);
 
+    void checkPingConfigurationSettings();
+    void updatePingConfigurationSettings();
+
     // For automatic periodic updates (board voltage and temperature)
     QTimer _periodicRequestTimer;
 
     QSharedPointer<QProcess> _firmwareProcess;
+
+    struct {
+        bool automaticMode = 1;
+        int frequency = 15;
+        int gainIndex = 0;
+        int lengthDistance = 5000;
+        int speedOfSound = 1500;
+        int startDistance = 0;
+    } _pingConfiguration;
 };
