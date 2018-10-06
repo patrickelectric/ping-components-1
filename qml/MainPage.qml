@@ -306,4 +306,11 @@ Item {
             ping1DVisualizer.waterfallItem.clear()
         }
     }
+
+    Notification {
+        anchors {
+            horizontalCenter: parent.horizontalCenter
+            top: parent.top
+        }
+    }
 }
