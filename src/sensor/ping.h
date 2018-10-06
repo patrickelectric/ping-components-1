@@ -362,6 +362,15 @@ public:
      */
     int parsedMsgs() { return _parser ? _parser->parsed : 0; }
     Q_PROPERTY(int parsed_msgs READ parsedMsgs NOTIFY parsedMsgsUpdate)
+
+    /**
+     * @brief Returns the firmware version compatible with this class.
+     *
+     * @return float
+     */
+    float compatibleFirmwareVersion() { return _compatibleFirmwareVersion; }
+    Q_PROPERTY(float compatibleFirmwareVersion READ compatibleFirmwareVersion CONSTANT)
+
     // TODO, maybe store history/filtered history of values in this
     // object for access by different visual elements without need to recompute
     // TODO install filters here?
@@ -433,6 +442,12 @@ signals:
     void flashComplete();
 
 private:
+    /**
+     * @brief Firmware version supported by this class
+     *
+     */
+    const float _compatibleFirmwareVersion = 3.22;
+
     /**
      * @brief Sensor variables
      */
