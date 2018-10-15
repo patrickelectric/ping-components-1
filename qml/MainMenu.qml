@@ -32,7 +32,7 @@ Item {
 
         // Transform arguments to Array and remove connectionTypeEnum from it
         var nextArgs = Array.prototype.slice.call(arguments).slice(1)
-        ping.connectLink(connectionTypeEnum, nextArgs)
+        ping.addDetectionLink(connectionTypeEnum, nextArgs)
     }
 
     Connections {
