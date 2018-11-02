@@ -46,12 +46,20 @@ Item {
                 text: display == undefined ? "undefined" : display
                 //visible: enabledCategories & category
                 color: foreground == undefined ? "purple" : foreground
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    hoverEnabled: false
+                    onClicked: print(index)
+                }
             }
         }
         ScrollBar.horizontal: ScrollBar { }
         ScrollBar.vertical: ScrollBar { }
 
         onCountChanged: {
+            print('count')
             if(scrollLockEnabled) {
                 // This appears to be better than positionViewAtEnd
                 // Less bug

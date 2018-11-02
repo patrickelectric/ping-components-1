@@ -14,7 +14,7 @@ LogListModel::LogListModel(QObject* parent)
     }
 
     //_itemRing.setAccessType(RingVector<ItemPack>::LIFO);
-    _itemRing.fill({0, {}, "", ""}, 100);
+    _itemRing.fill({0, {}, "", ""}, 20);
     beginInsertRows(QModelIndex(), 0, _itemRing.size());
     insertRows(0, _itemRing.size());
     endInsertRows();
@@ -37,9 +37,24 @@ void LogListModel::append(const QVariant time, const QVariant text, const QVaria
         qCDebug(LOG_LIST_MODEL) << index(i);
     }*/
     //qCDebug(LOG_LIST_MODEL) << "new";
-    beginResetModel();
+
+    static int size = 0;
+    if(_itemRing.size() <= size) {
+        removeRow(_itemRing.size());
+        //_size - _itemRing.size()
+        //emit rowsRemoved(index(_size - _itemRing.size()), _size - _itemRing.size(), change.last, QPrivateSignal());
+        //beginRemoveRows(QModelIndex(), _size - _itemRing.size(), 1);
+        //endRemoveRows();
+    }
+    //beginInsertRows(QModelIndex(), _size, 1);
     _itemRing.append({category, color, text, time});
-    endResetModel();
+    insertRow(_itemRing.size());
+    size++;
+
+    for(int i{0}; i < 20; i++) {
+        qCDebug(LOG_LIST_MODEL) << _itemRing[i].time;
+    }
+    //endInsertRows();
 }
 
 QVariant LogListModel::data(const QModelIndex& index, int role) const
@@ -48,7 +63,7 @@ QVariant LogListModel::data(const QModelIndex& index, int role) const
 
     const int indexRow = index.row();
 
-    //qCDebug(LOG_LIST_MODEL) << indexRow << index << role;
+    qCDebug(LOG_LIST_MODEL) << indexRow << index << role;
 
     switch(role) {
     case LogListModel::Color: {
