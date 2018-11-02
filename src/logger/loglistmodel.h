@@ -1,16 +1,20 @@
 #pragma once
 
+#include <QAbstractListModel>
 #include <QColor>
-#include <QStringListModel>
+#include <QLoggingCategory>
+
+#include "ringvector.h"
+
+Q_DECLARE_LOGGING_CATEGORY(LOG_LIST_MODEL);
 
 /**
  * @brief Model for qml log interface
- * Initially based on:
- * https://stackoverflow.com/questions/37781426/how-to-change-the-color-of-qstringlistmodel-items
  *
  */
-class LogListModel : public QStringListModel
+class LogListModel : public QAbstractListModel
 {
+    Q_OBJECT
 public:
     /**
      * @brief Construct a new LogListModel
@@ -20,8 +24,10 @@ public:
     LogListModel(QObject* parent = nullptr);
 
     enum {
-        TimeRole = Qt::UserRole + 0x10,
-        CategoryRole,
+        Category,
+        Color,
+        Text,
+        Time,
     };
 
     /**
@@ -34,34 +40,50 @@ public:
     QVariant data(const QModelIndex& index, int role) const override;
 
     /**
-     * @brief Set the data
-     *
-     * @param index
-     * @param value
-     * @param role
-     * @return true
-     * @return false
-     */
-    bool setData(const QModelIndex& index, const QVariant& value, int role) override;
-
-    /**
      * @brief Get role names
      *
      * @return QHash<int, QByteArray>
      */
     QHash<int, QByteArray> roleNames() const override;
 
+    /**
+     * @brief Return the number of rows
+     *
+     * @param parent
+     * @return int
+     */
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override
+    {
+        Q_UNUSED(parent)
+        return _itemRing.size();
+    }
+
+    /**
+     * @brief
+     *
+     * @param time
+     * @param text
+     * @param color
+     * @param category index
+     */
+    void append(const QVariant time, const QVariant text, const QVariant color, QVariant category);
+
 private:
-    QVector<int> _roles{
-        Qt::ForegroundRole,
-        LogListModel::TimeRole,
-    };
+    Q_DISABLE_COPY(LogListModel)
+    QVector<int> _roles;
+
     QHash<int, QByteArray> _roleNames{
-        {{Qt::ForegroundRole}, {"foreground"}},
-        {{LogListModel::TimeRole}, {"time"}},
-        {{LogListModel::CategoryRole}, {"category"}},
+        {{LogListModel::Category}, {"category"}},
+        {{LogListModel::Color}, {"foreground"}},
+        {{LogListModel::Text}, {"display"}},
+        {{LogListModel::Time}, {"time"}},
     };
-    QVector<QVariant> _rowCategory;
-    QVector<QVariant> _rowColors;
-    QVector<QVariant> _rowTimes;
+    struct ItemPack {
+        QVariant category;
+        QVariant color;
+        QVariant text;
+        QVariant time;
+    };
+    // We are not changing things inside the const function, but accessing _itemRing fail to compile
+    mutable RingVector<ItemPack> _itemRing;
 };

@@ -36,15 +36,15 @@ Item {
             spacing: 10
             Text {
                 id: leftText
-                text: time
-                visible: enabledCategories & category
+                text: time == undefined ? "undefined" : time
+                //visible: enabledCategories & category
                 color: foreground == undefined ? "purple" : foreground
             }
             Text {
                 width: parent.width - leftText.width
                 wrapMode: Text.WordWrap
-                text: display
-                visible: enabledCategories & category
+                text: display == undefined ? "undefined" : display
+                //visible: enabledCategories & category
                 color: foreground == undefined ? "purple" : foreground
             }
         }

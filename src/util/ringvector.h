@@ -13,7 +13,8 @@ class RingVector: public QVector<T>
 public:
     RingVector()
         : _accessType(FIFO)
-        , _appendIndex(-1) {}
+        , _appendIndex(-1)
+        {}
 
     /**
      * @brief Ring buffer type
@@ -37,14 +38,13 @@ public:
      */
     T& operator[](int id)
     {
-        int index;
-        if(_accessType == FIFO) {
-            index = _appendIndex - id;
-            while(index < 0) {
-                index += QVector<T>::length();
-            }
-        } else {
-            index = id;
+        int index = _appendIndex - id;
+        while(index < 0) {
+            index += QVector<T>::length();
+        }
+
+        if(_accessType == LIFO) {
+            index = index + 1;
         }
         return QVector<T>::operator[](index%QVector<T>::length());
     }
@@ -60,5 +60,5 @@ public:
 
 private:
     ACCESS_TYPE _accessType;
-    uint _appendIndex;
+    int _appendIndex;
 };

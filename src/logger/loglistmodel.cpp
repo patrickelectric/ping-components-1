@@ -1,79 +1,80 @@
+#include <QDebug>
+
+#include "logger.h"
 #include "loglistmodel.h"
 
+PING_LOGGING_CATEGORY(LOG_LIST_MODEL, "ping.loglistmodel");
+
 LogListModel::LogListModel(QObject* parent)
-    : QStringListModel(parent)
+    : QAbstractListModel(parent)
 {
-    _roleNames.unite(QStringListModel::roleNames());
+    // Add all roles in _roles
+    for(const auto key : _roleNames.keys()) {
+        _roles.append(key);
+    }
+
+    //_itemRing.setAccessType(RingVector<ItemPack>::LIFO);
+    _itemRing.fill({0, {}, "", ""}, 100);
+    beginInsertRows(QModelIndex(), 0, _itemRing.size());
+    insertRows(0, _itemRing.size());
+    endInsertRows();
+}
+
+void LogListModel::append(const QVariant time, const QVariant text, const QVariant color, QVariant category)
+{
+    /*
+    // Create a new row
+    const int line = rowCount() + 1;
+    auto modelIndex = index(line);
+    qCDebug(LOG_LIST_MODEL) << __PRETTY_FUNCTION__;
+    qCDebug(LOG_LIST_MODEL) << time << text << color << category << line << modelIndex;
+    setData(modelIndex, category, LogListModel::Category);
+    setData(modelIndex, color, LogListModel::Color);
+    setData(modelIndex, text, LogListModel::Text);
+    setData(modelIndex, time, LogListModel::Time);
+
+    for(int i{0}; i < 20; i++) {
+        qCDebug(LOG_LIST_MODEL) << index(i);
+    }*/
+    //qCDebug(LOG_LIST_MODEL) << "new";
+    beginResetModel();
+    _itemRing.append({category, color, text, time});
+    endResetModel();
 }
 
 QVariant LogListModel::data(const QModelIndex& index, int role) const
 {
+    //qCDebug(LOG_LIST_MODEL) << "--------------------------------------------";
+
     const int indexRow = index.row();
+
+    //qCDebug(LOG_LIST_MODEL) << indexRow << index << role;
+
     switch(role) {
-    case Qt::ForegroundRole: {
-        if(indexRow > 0 && indexRow < _rowColors.size()) {
-            return _rowColors[indexRow];
-        }
+    case LogListModel::Color: {
+        //qCDebug(LOG_LIST_MODEL) << "COLOR" << _itemRing[indexRow].color;
+        return _itemRing[indexRow].color;
     }
     break;
-    case LogListModel::TimeRole: {
-        if(indexRow > 0 && indexRow < _rowTimes.size()) {
-            return _rowTimes[indexRow];
-        }
+    case LogListModel::Time: {
+        //qCDebug(LOG_LIST_MODEL) << "TIME" << _itemRing[indexRow].time;
+        return _itemRing[indexRow].time;
     }
     break;
-    case LogListModel::CategoryRole: {
-        if(indexRow > 0 && indexRow < _rowCategory.size()) {
-            return _rowCategory[indexRow];
-        }
+    case LogListModel::Text:
+        //qCDebug(LOG_LIST_MODEL) << "text" << _itemRing[indexRow].text;
+        return _itemRing[indexRow].text;
+    case LogListModel::Category: {
+        //qCDebug(LOG_LIST_MODEL) << "category" << _itemRing[indexRow].category;
+        return _itemRing[indexRow].category;
     }
     break;
     default:
         break;
     }
 
-    return QStringListModel::data(index, role);
-}
-
-bool LogListModel::setData(const QModelIndex& index, const QVariant& value, int role)
-{
-    int indexRow = index.row();
-    switch (role) {
-    case Qt::ForegroundRole :
-        if(indexRow > 0 && indexRow < _rowColors.size()) {
-            _rowColors[indexRow] = value;
-        } else if(indexRow == _rowColors.size()) {
-            _rowColors.append(value);
-        } else {
-            return true;
-        }
-        emit dataChanged(index, index, _roles);
-        return true;
-    case LogListModel::TimeRole :
-        if(indexRow > 0 && indexRow < _rowTimes.size()) {
-            _rowTimes[indexRow] = value;
-        } else if(indexRow == _rowTimes.size()) {
-            _rowTimes.append(value);
-        } else {
-            return true;
-        }
-        emit dataChanged(index, index, _roles);
-        return true;
-    case LogListModel::CategoryRole :
-        if(indexRow > 0 && indexRow < _rowCategory.size()) {
-            _rowCategory[indexRow] = value;
-        } else if(indexRow == _rowCategory.size()) {
-            _rowCategory.append(value);
-        } else {
-            return true;
-        }
-        emit dataChanged(index, index, _roles);
-        return true;
-    default :
-        break;
-    }
-
-    return QStringListModel::setData(index, value, role);
+    qCDebug(LOG_LIST_MODEL) << "no valid";
+    return {"No valid role or index."};
 }
 
 QHash<int, QByteArray> LogListModel::roleNames() const
