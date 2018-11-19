@@ -36,6 +36,8 @@ void NetworkTool::checkInterfaceUpdate()
 
 void NetworkTool::checkNewVersionInGitHubPayload(QJsonDocument& jsonDocument)
 {
+    QStringList potato;
+    qDebug() << potato[3];
     const static QString projectTag = QStringLiteral(GIT_TAG);
 
     auto semverToInt = [](const QString& version) -> int {
@@ -160,7 +162,7 @@ void NetworkTool::scheduleUpdateCheck()
         timer->deleteLater();
     });
     timer->setSingleShot(true);
-    timer->start(30000);
+    timer->start(5000);
 }
 
 QObject* NetworkTool::qmlSingletonRegister(QQmlEngine* engine, QJSEngine* scriptEngine)
