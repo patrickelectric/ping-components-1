@@ -250,17 +250,23 @@ void Waterfall::draw(const QVector<double>& points, float confidence, float init
     /**
      * @brief Get lastMinDepth from the last n samples
      */
-    static auto lastMinDepth = [this] {
+    static auto lastMinDC = [this] {
         float minDepth = std::numeric_limits<float>::max();
+        DCPack tempDC{0, 0, 0, 0};
         for(const auto& DC : qAsConst(this->_DCRing))
         {
-            minDepth = minDepth > DC.initialDepth ? DC.initialDepth : minDepth;
+            if(minDepth > DC.initialDepth) {
+                minDepth = DC.initialDepth;
+                tempDC = DC;
+            }
         }
-        return minDepth;
+        return tempDC;
     };
     static DCPack _maxDC;
+    static DCPack _minDC;
     _maxDC = lastMaxDC();
-    _minDepthToDraw = lastMinDepth();
+    _minDC = lastMinDC();
+    _minDepthToDraw = _minDC.initialDepth;
     _maxDepthToDraw = _maxDC.initialDepth + _maxDC.length;
     emit minDepthToDrawChanged();
     emit maxDepthToDrawChanged();
@@ -269,15 +275,19 @@ void Waterfall::draw(const QVector<double>& points, float confidence, float init
     static float lastDynamicPixelsPerMeterScalar = 0;
     float dynamicPixelsPerMeterScalar = 1.0;
     // Fix min resolution to be 400 pixels
-    if((_maxDepthToDraw - _minDepthToDraw)*_minPixelsPerMeter < 400) {
-        dynamicPixelsPerMeterScalar = 400/((_maxDepthToDraw - _minDepthToDraw)*_minPixelsPerMeter);
+    if((_minDC.length - _minDC.initialDepth)*_minPixelsPerMeter*dynamicPixelsPerMeterScalar < 200) {
+        dynamicPixelsPerMeterScalar = 200/((_minDC.length - _minDC.initialDepth)*_minPixelsPerMeter);
         if(!lastDynamicPixelsPerMeterScalar) {
             lastDynamicPixelsPerMeterScalar = dynamicPixelsPerMeterScalar;
         }
-        _maxDepthToDrawInPixels = 400;
+        _maxDepthToDrawInPixels = (_minDC.initialDepth + _maxDC.length)*_minPixelsPerMeter*dynamicPixelsPerMeterScalar;
+        if(_maxDepthToDrawInPixels > 2500) {
+            _maxDepthToDrawInPixels = 2500;
+        }
 
         // Rescale everything when resolution changes
-        if(lastDynamicPixelsPerMeterScalar != dynamicPixelsPerMeterScalar) {
+        // Only scale if the changes are bigger than 10%
+        if(2*abs(lastDynamicPixelsPerMeterScalar - dynamicPixelsPerMeterScalar)/(lastDynamicPixelsPerMeterScalar + dynamicPixelsPerMeterScalar) > 0.1) {
             //Swap is faster
             _image.swap(old);
             _image.fill(Qt::transparent);
@@ -288,9 +298,9 @@ void Waterfall::draw(const QVector<double>& points, float confidence, float init
                                     _image.height()*dynamicPixelsPerMeterScalar/lastDynamicPixelsPerMeterScalar),
                               old.scaled(_image.width(), _image.height()));
             painter.end();
+            lastDynamicPixelsPerMeterScalar = dynamicPixelsPerMeterScalar;
         }
 
-        lastDynamicPixelsPerMeterScalar = dynamicPixelsPerMeterScalar;
     } else {
         _maxDepthToDrawInPixels = (_maxDepthToDraw  - _minDepthToDraw)*_minPixelsPerMeter;
     }
