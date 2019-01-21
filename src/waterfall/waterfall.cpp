@@ -272,22 +272,22 @@ void Waterfall::draw(const QVector<double>& points, float confidence, float init
     emit maxDepthToDrawChanged();
 
     // Calculate new resolution for small distances range
-    static float lastDynamicPixelsPerMeterScalar = 0;
+    static float lastDynamicPixelsPerMeterScalar = 1.0;
     float dynamicPixelsPerMeterScalar = 1.0;
     // Fix min resolution to be 400 pixels
-    if((_minDC.length - _minDC.initialDepth)*_minPixelsPerMeter*dynamicPixelsPerMeterScalar < 200) {
+    qDebug() << _minDC.initialDepth << _minDC.length << (_minDC.length - _minDC.initialDepth)*_minPixelsPerMeter*lastDynamicPixelsPerMeterScalar << _maxDepthToDrawInPixels;
+    float minPixelSize = (_minDC.length - _minDC.initialDepth)*_minPixelsPerMeter*lastDynamicPixelsPerMeterScalar;
+    if( minPixelSize < 200 || minPixelSize > 400) {
         dynamicPixelsPerMeterScalar = 200/((_minDC.length - _minDC.initialDepth)*_minPixelsPerMeter);
-        if(!lastDynamicPixelsPerMeterScalar) {
-            lastDynamicPixelsPerMeterScalar = dynamicPixelsPerMeterScalar;
-        }
         _maxDepthToDrawInPixels = (_minDC.initialDepth + _maxDC.length)*_minPixelsPerMeter*dynamicPixelsPerMeterScalar;
+        qDebug() << "HAAAA" << minPixelSize << dynamicPixelsPerMeterScalar << lastDynamicPixelsPerMeterScalar << _maxDepthToDrawInPixels;
         if(_maxDepthToDrawInPixels > 2500) {
             _maxDepthToDrawInPixels = 2500;
         }
 
         // Rescale everything when resolution changes
         // Only scale if the changes are bigger than 10%
-        if(2*abs(lastDynamicPixelsPerMeterScalar - dynamicPixelsPerMeterScalar)/(lastDynamicPixelsPerMeterScalar + dynamicPixelsPerMeterScalar) > 0.1) {
+        //if(2*abs(lastDynamicPixelsPerMeterScalar - dynamicPixelsPerMeterScalar)/(lastDynamicPixelsPerMeterScalar + dynamicPixelsPerMeterScalar) > 0.1) {
             //Swap is faster
             _image.swap(old);
             _image.fill(Qt::transparent);
@@ -299,7 +299,7 @@ void Waterfall::draw(const QVector<double>& points, float confidence, float init
                               old.scaled(_image.width(), _image.height()));
             painter.end();
             lastDynamicPixelsPerMeterScalar = dynamicPixelsPerMeterScalar;
-        }
+        //}
 
     } else {
         _maxDepthToDrawInPixels = (_maxDepthToDraw  - _minDepthToDraw)*_minPixelsPerMeter;
