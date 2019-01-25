@@ -114,6 +114,30 @@ Item {
         }
     }
 
+    Connections {
+        target: parent
+        property var lastHeight: 0;
+        property var lastWidth: 0;
+        onHeightChanged: {
+            if(lastHeight === 0) {
+                lastHeight = parent.height
+                return
+            }
+            root.y += (parent.height - lastHeight)/2
+            print('y', root.y, parent.height, lastHeight)
+            lastHeight = parent.height
+        }
+        onWidthChanged: {
+            if(lastWidth === 0) {
+                lastWidth = parent.width
+                return
+            }
+            root.x += (parent.width - lastWidth)/2
+            print('x', root.x, parent.width, lastWidth)
+            lastWidth = parent.width
+        }
+    }
+
     Settings {
         id: settings
         property alias valueReadoutX: root.x

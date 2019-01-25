@@ -45,6 +45,10 @@ Item {
             Layout.preferredWidth: 350
             Layout.minimumWidth: 350
 
+            ValueReadout {
+                id: readout
+            }
+
             Rectangle {
                 x: waterfall.mousePos.x - width/2 + height/2
                 y: width/2
@@ -108,10 +112,6 @@ Item {
         Settings {
             property alias chartWidth: chart.width
         }
-    }
-
-    ValueReadout {
-        id: readout
     }
 
     function confidenceToColor(confidence) {
