@@ -12,7 +12,7 @@
     #include <linux/serial.h>
 #endif
 #ifdef Q_OS_WIN
-    #include <Windows.h>
+    #include <windows.h> //test case
     #include <QSettings>
 #endif
 
