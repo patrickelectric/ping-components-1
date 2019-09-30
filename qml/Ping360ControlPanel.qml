@@ -22,7 +22,7 @@ PingGroupBox {
             Layout.fillWidth: true
             text: "Range (m)"
             model: [1, 2, 5, 10, 15, 20, 30, 40, 50, 60]
-            onOptionChanged: ping.range = value
+            onOptionChanged: ping.range = modelValue
             startingValue: Math.round(ping.range)
         }
 
@@ -32,7 +32,7 @@ PingGroupBox {
             startingIndex: ping.gain_setting
             model: ["Low", "Medium", "High"]
             onOptionChanged: {
-                ping.gain_setting = key
+                ping.gain_setting = modelKey
             }
         }
 
@@ -42,7 +42,7 @@ PingGroupBox {
             startingIndex: 5
             model: [60, 90, 120, 180, 360]
             onOptionChanged: {
-                ping.sectorSize = value
+                ping.sectorSize = modelValue
             }
         }
 
