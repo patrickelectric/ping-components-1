@@ -497,15 +497,15 @@ void Ping360::resetSettings()
 {
     qCDebug(PING_PROTOCOL_PING360) << "Settings will be reseted.";
 
-    _gain_setting = _firmwareDefaultGainSetting;
-    _angle = _firmwareDefaultAngle;
-    _transmit_duration = _firmwareDefaultTransmitDuration;
-    _sample_period = _firmwareDefaultSamplePeriod;
-    _transmit_frequency = _firmwareDefaultTransmitFrequency;
-    _num_points = _firmwareDefaultNumberOfSamples;
-    deltaStep(_angle_offset, false);
+    // This variables should not be set directly without equality checks,
+    // such thing will result in a miss signal emition
+    set_gain_setting(_firmwareDefaultGainSetting);
+    set_transmit_duration(_firmwareDefaultTransmitDuration);
+    set_sample_period(_firmwareDefaultSamplePeriod);
+    set_transmit_frequency(_viewerDefaultTransmitFrequency);
+    set_number_of_points(_viewerDefaultNumberOfSamples);
 
-    // Signals will be update in the next profile, it's possible that old profiles contain older configurations
+    deltaStep(_angle_offset, false);
 }
 
 Ping360::~Ping360()
