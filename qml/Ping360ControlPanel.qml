@@ -18,7 +18,13 @@ PingGroupBox {
     ColumnLayout {
         Layout.fillWidth: true
 
+        Connections {
+            target: ping
+            onRangeChanged: rangeSlider.value = rangeSlider.getNearIndexFromModel(ping.range)
+        }
+
         PingComboSlider {
+            id: rangeSlider
             Layout.fillWidth: true
             text: "Range (m)"
             model: [1, 2, 5, 10, 15, 20, 30, 40, 50, 60]
