@@ -29,8 +29,22 @@ PingSlider {
     control.to: model.length - 1
     control.stepSize: 1
 
-    onValueChanged: {
-        optionChanged(value, model[value])
+    onValueChanged: optionChanged(value, model[value])
+
+    function getNearIndexFromModel(testValue) {
+        var closestValue = {difference: -1, index: 0}
+        for(var i in root.model) {
+            var diff = Math.abs(root.model[i] - testValue);
+            if(closestValue.difference === -1 || diff < closestValue.difference) {
+                closestValue.difference = diff
+                closestValue.index = i
+            }
+        }
+        if(closestValue.difference !== -1) {
+            return closestValue.index
+        } else {
+            return -1;
+        }
     }
 
     control.background: Rectangle {
@@ -68,7 +82,7 @@ PingSlider {
         if (root.startingIndex !== null) {
             root.value = root.startingIndex;
         } else if (root.startingValue !== null) {
-            root.value = root.model.indexOf(root.startingValue);
+            root.value = getNearIndexFromModel(root.startingValue);
         }
     }
 }
