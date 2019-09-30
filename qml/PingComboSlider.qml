@@ -20,7 +20,7 @@ PingSlider {
     property alias model: internalTicks.model
     property var startingIndex: null
     property var startingValue: null
-    signal optionChanged(var key, var value)
+    signal optionChanged(var modelKey, var modelValue)
 
     valueText: model[value]
     value: 0
