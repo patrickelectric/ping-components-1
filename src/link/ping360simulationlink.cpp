@@ -1,3 +1,4 @@
+#include <QRandomGenerator>
 #include <QtMath>
 
 #include "ping-message-ping360.h"
@@ -32,12 +33,12 @@ void Ping360SimulationLink::randomUpdate()
     for (int i = 0; i < numberOfSamples; i++) {
         float point;
         if (i < stop1) {
-            point = 0.1 * (qrand() % 256);
+            point = 0.1 * QRandomGenerator::global()->bounded(256);
         } else if (i < stop2) {
             point
                 = 255 * ((-4.0 / qPow((stop2 - stop1), 2.0)) * qPow((i - stop1 - ((stop2 - stop1) / 2.0)), 2.0) + 1.0);
         } else {
-            point = 0.45 * (qrand() % 256);
+            point = 0.45 * QRandomGenerator::global()->bounded(256);
         }
         deviceData.set_data_at(i, point);
     }
