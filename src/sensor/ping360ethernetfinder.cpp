@@ -1,3 +1,4 @@
+#include <QNetworkInterface>
 #include <QUdpSocket>
 
 #include "ping360ethernetfinder.h"
@@ -15,8 +16,15 @@ void Ping360EthernetFinder::doBroadcast()
     // We broadcast a "Discovery" message to 255.255.255.255 and port 30303 as
     // described in the communications manual.
     QByteArray datagram = "Discovery";
-    _broadcastSocket.writeDatagram(datagram, QHostAddress::Broadcast, 30303);
-    _broadcastSocket.writeDatagram(datagram, QHostAddress("192.168.2.255"), 30303);
+    auto interfaces =  QNetworkInterface::allInterfaces();
+    for(const auto& interface: interfaces) {
+        const auto addresses = interface.addressEntries();
+        for(const auto& address : addresses) {
+            if(address.ip().protocol() == QAbstractSocket::IPv4Protocol && !address.broadcast().isNull()) {
+                _broadcastSocket.writeDatagram(datagram, QHostAddress::Broadcast, 30303);
+            }
+        }
+    }
 }
 
 void Ping360EthernetFinder::processBroadcastResponses()
