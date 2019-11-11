@@ -103,8 +103,6 @@ void Ping::startPreConfigurationProcess()
 
     // Start periodic request timer
     _periodicRequestTimer.start();
-
-    // Save configuration
 }
 
 void Ping::loadLastPingConfigurationSettings()
