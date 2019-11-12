@@ -1,3 +1,4 @@
+#include <QCoreApplication>
 #include <QElapsedTimer>
 #include <QtMath>
 
@@ -65,12 +66,36 @@ void Ping360SimulationLink::randomUpdate()
 
     // Calculate the global average time between requests
     _counter++;
+
+    // This should be done after _counter increase to not interate before a full first spin
+    if (_counter % angularResolution == 0) {
+        _spins++;
+    }
+
     float elapsedTime = _elapsedTimer.elapsed();
-    if (_counter == 1) {
+
+    // Do not iterate until we have a valid start of a full first spin
+    if (_spins == 0) {
+        return;
+    } else if (_spins == 1) {
         _globalAverageTimeMs = elapsedTime;
     } else {
         float weight = (_counter - 1) / static_cast<float>(_counter);
         _globalAverageTimeMs = _globalAverageTimeMs * weight + elapsedTime * (1 - weight);
     }
     _elapsedTimer.restart();
+
+#if defined(PING360_SPEED_TEST)
+    if (_spins > simulationTest.spins) {
+        // Since we are forcing the application to close, qDebug may not work
+        printf("%s: Average elapsed request elapsed time %f [Valid: %f]\n", __PRETTY_FUNCTION__, _globalAverageTimeMs,
+            simulationTest.maxAverageRequestTimeMs);
+
+        if (_globalAverageTimeMs > simulationTest.maxAverageRequestTimeMs) {
+            QCoreApplication::exit(-1);
+        } else {
+            QCoreApplication::exit(0);
+        }
+    }
+#endif
 }

@@ -42,4 +42,12 @@ private:
     int _counter;
     QElapsedTimer _elapsedTimer;
     float _globalAverageTimeMs;
+    int _spins;
+
+#if defined(PING360_SPEED_TEST)
+    const struct {
+        float maxAverageRequestTimeMs = 3.6;
+        int spins = 20;
+    } simulationTest;
+#endif
 };
