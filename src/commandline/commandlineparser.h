@@ -34,7 +34,12 @@ private:
 
     QList<OptionStruct> _optionsStruct {
         {
-            {{"connect", "c"}, "Connect directly with the input.", "connectionString"},
+            {{"connect", "c"}, "Connect directly with the input.", "connectionString"
+#if defined(PING360_SPEED_TEST)
+                ,
+                "Ping360:6"
+#endif
+            },
             [this](const QString& result) { DeviceManager::self()->connectLinkDirectly(LinkConfiguration {result}); },
         },
     };
