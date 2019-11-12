@@ -41,3 +41,9 @@ if grep "\[Warning\]" $last_log; then
     echob "Please fix the warning messages!"
     exit 1
 fi
+
+echob "Do ping360 speed test:"
+${scriptpath}/compile.sh --ping360speedtest --no-deploy --debug || exit 1
+export DISPLAY=:99.0
+build_folder="$projectpath/build"
+xvfb-run --server-args="-screen 0 1024x768x24" ${build_folder}/pingviewer || exit 1
