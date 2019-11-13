@@ -41,6 +41,8 @@ const uint16_t Ping360::_firmwareDefaultNumberOfSamples = 1024;
 // The default transmit frequency to operate with
 const uint16_t Ping360::_viewerDefaultTransmitFrequency = 750;
 const uint16_t Ping360::_viewerDefaultNumberOfSamples = _firmwareMaxNumberOfPoints;
+const uint16_t Ping360::_viewerDefaultSamplePeriod = 88;
+const uint16_t Ping360::_viewerDefaultTransmitDuration = 11;
 
 // Physical properties of the sensor
 const float Ping360::_angularSpeedGradPerMs = 400.0f / 2400.0f;
@@ -258,7 +260,10 @@ void Ping360::handleMessage(const ping_message& msg)
         // This properties are changed internally only when the link is not writable
         // Such information is normally sync between our application and the sensor
         // So with normal links such attribution is not necessary
-        if (!link()->isWritable()) {
+        _sensorSettings.checkValidation({deviceData.transmit_duration(), deviceData.gain_setting(),
+            deviceData.data_length(), deviceData.sample_period(), deviceData.transmit_frequency()});
+        // Everything should be valid, otherwise the sensor is not in sync
+        if (!link()->isWritable() && _sensorSettings.valid) {
             set_gain_setting(deviceData.gain_setting());
             set_transmit_duration(deviceData.transmit_duration());
             set_sample_period(deviceData.sample_period());
@@ -274,14 +279,11 @@ void Ping360::handleMessage(const ping_message& msg)
         if (nack.nacked_id() == Ping360Id::TRANSDUCER) {
             qCWarning(PING_PROTOCOL_PING360) << "transducer control was NACKED, reverting to default settings";
 
-            _gain_setting = _firmwareDefaultGainSetting;
-            if (_transmit_duration != _firmwareDefaultTransmitDuration) {
-                _transmit_duration = _firmwareDefaultTransmitDuration;
-                emit transmitDurationChanged();
-            }
-            _sample_period = _firmwareDefaultSamplePeriod;
-            _transmit_frequency = _viewerDefaultTransmitFrequency;
-            _num_points = _viewerDefaultNumberOfSamples;
+            set_gain_setting(_firmwareDefaultGainSetting);
+            set_transmit_duration(_viewerDefaultTransmitDuration);
+            set_sample_period(_viewerDefaultSamplePeriod);
+            set_transmit_frequency(_viewerDefaultTransmitFrequency);
+            set_number_of_points(_viewerDefaultNumberOfSamples);
 
             // request another transmission
             requestNextProfile();
@@ -475,16 +477,18 @@ void Ping360::stopConfiguration()
 
 uint16_t Ping360::calculateSamplePeriod(float distance)
 {
-    float calculatedSamplePeriod = 2.0f * distance / (_num_points * _speed_of_sound * _samplePeriodTickDuration);
+    float calculatedSamplePeriod
+        = 2.0f * distance / (_sensorSettings.num_points * _speed_of_sound * _samplePeriodTickDuration);
     if (qFuzzyIsNull(calculatedSamplePeriod) || calculatedSamplePeriod < 0
         || calculatedSamplePeriod > std::numeric_limits<uint16_t>::max()) {
         qCWarning(PING_PROTOCOL_PING360)
             << "Invalid calculation of sample period. Going to use firmware default values.";
         qCDebug(PING_PROTOCOL_PING360) << "calculatedSamplePeriod: " << calculatedSamplePeriod
-                                       << "distance:" << distance << "_num_points" << _num_points << "_speed_of_sound"
-                                       << _speed_of_sound << "_samplePeriodTickDuration" << _samplePeriodTickDuration;
+                                       << "distance:" << distance << "_num_points" << _sensorSettings.num_points
+                                       << "_speed_of_sound" << _speed_of_sound << "_samplePeriodTickDuration"
+                                       << _samplePeriodTickDuration;
 
-        return _firmwareDefaultSamplePeriod;
+        return _viewerDefaultSamplePeriod;
     }
 
     return static_cast<uint16_t>(calculatedSamplePeriod);
@@ -494,15 +498,14 @@ void Ping360::resetSettings()
 {
     qCDebug(PING_PROTOCOL_PING360) << "Settings will be reseted.";
 
-    _gain_setting = _firmwareDefaultGainSetting;
-    _angle = _firmwareDefaultAngle;
-    _transmit_duration = _firmwareDefaultTransmitDuration;
-    _sample_period = _firmwareDefaultSamplePeriod;
-    _transmit_frequency = _firmwareDefaultTransmitFrequency;
-    _num_points = _firmwareDefaultNumberOfSamples;
-    deltaStep(_angle_offset, false);
-
+    set_gain_setting(_firmwareDefaultGainSetting);
+    set_transmit_duration(_viewerDefaultTransmitDuration);
+    set_sample_period(_viewerDefaultSamplePeriod);
+    set_transmit_frequency(_viewerDefaultTransmitFrequency);
+    set_number_of_points(_viewerDefaultNumberOfSamples);
     // Signals will be update in the next profile, it's possible that old profiles contain older configurations
+    // Turn sensor settings invalid and let the interface handle the sync
+    _sensorSettings.valid = false;
 }
 
 Ping360::~Ping360() { updateSensorConfigurationSettings(); }
