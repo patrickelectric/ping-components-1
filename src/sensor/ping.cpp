@@ -218,6 +218,7 @@ void Ping::handleMessage(const ping_message& msg)
 
         // This is necessary to convert <uint8_t> to <int>
         // QProperty only supports vector<int>, otherwise, we could use memcpy, like the two lines above
+        #pragma omp for
         for (int i = 0; i < m.profile_data_length(); i++) {
             _points.replace(i, m.profile_data()[i] / 255.0);
         }
