@@ -3,6 +3,7 @@
 #include <QImage>
 #include <QOpenGLShader>
 #include <QQuickPaintedItem>
+#include <QTimer>
 
 #include "logger.h"
 #include "ringvector.h"
