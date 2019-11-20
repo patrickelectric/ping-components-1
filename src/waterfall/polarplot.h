@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QImage>
+#include <QOpenGLShader>
 #include <QQuickPaintedItem>
 
 #include "logger.h"
@@ -125,5 +126,8 @@ private:
     QPainterPath _polarBackgroundMask;
     float _sectorSizeDegrees;
     static uint16_t _angularResolution;
-    QTimer* _updateTimer;
+    QTimer _updateTimer;
+
+    QOpenGLShader _vertexShader;
+	QOpenGLShader _fragmentShader;
 };
