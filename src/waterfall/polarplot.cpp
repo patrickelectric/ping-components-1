@@ -79,7 +79,7 @@ void PolarPlot::clear()
     qCDebug(polarplot) << "Cleaning waterfall and restarting internal variables";
     _image.fill(Qt::transparent);
     _distances.fill(0, _angularResolution);
-    _backgroundImage.fill(valueToRGB(0));
+    _backgroundImage.fill(Qt::transparent);
     _maxDistance = 0;
 }
 

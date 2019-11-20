@@ -127,6 +127,13 @@ Item {
                         }
                     }
                 }
+
+                transform: Rotation {
+                    origin.x: shader.width/2
+                    origin.y: shader.height/2
+                    axis { x: waterfall.verticalFlip; y: waterfall.horizontalFlip; z: 0 }
+                    angle: 180
+                }
             }
 
             PolarPlot {
@@ -139,13 +146,6 @@ Item {
                 property var scale: ping.sectorSize >= 180 ? 1 : 0.8/Math.sin(ping.sectorSize*Math.PI/360)
                 property bool verticalFlip: false
                 property bool horizontalFlip: false
-                /*
-                transform: Rotation {
-                    origin.x: waterfall.width/2
-                    origin.y: waterfall.height/2
-                    axis { x: waterfall.verticalFlip; y: waterfall.horizontalFlip; z: 0 }
-                    angle: 180
-                }*/
                 visible: false
             }
 
