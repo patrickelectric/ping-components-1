@@ -17,7 +17,7 @@ PolarPlot::PolarPlot(QQuickItem* parent)
     : Waterfall(parent)
     , _backgroundImage(1, 1, QImage::Format_RGBA8888)
     , _distances(_angularResolution, 0)
-    , _image(2500, 2500, QImage::Format_RGBA8888)
+    , _image(400, 1200, QImage::Format_RGBA8888)
     , _maxDistance(0)
     , _painter(nullptr)
     , _sectorSizeDegrees(0)
@@ -69,7 +69,7 @@ void PolarPlot::paint(QPainter* painter)
 
     // http://blog.qt.io/blog/2006/05/13/fast-transformed-pixmapimage-drawing/
     pix = QPixmap::fromImage(_image, Qt::NoFormatConversion);
-    _painter->setClipPath(_polarBackgroundMask);
+    //_painter->setClipPath(_polarBackgroundMask);
     _painter->drawImage(QRect(0, 0, width(), height()), _backgroundImage);
     _painter->drawPixmap(QRect(0, 0, width(), height()), pix, QRect(0, 0, _image.width(), _image.height()));
 }
@@ -115,26 +115,11 @@ void PolarPlot::draw(
         emit maxDistanceChanged();
     }
 
-    const float linearFactor = points.size() / (float)center.x();
-    for (int i = 1; i < center.x(); i++) {
-        if (i < center.x() * length / _maxDistance) {
-            pointColor = valueToRGB(points[static_cast<int>(i * linearFactor - 1)]);
-        } else {
-            pointColor = QColor(0, 0, 0, 0);
-        }
-        step = ceil(i * 3 * angleGrad * gradianToRadian);
-        // The math and logic behind this loop is done in a way that the interaction is done with ints
-        for (int currentStep = 0; currentStep <= step; currentStep++) {
-            float deltaRadian = (angleGrad * gradianToRadian / (float)step) * (currentStep - step / 2);
-            float calculatedAngle = deltaRadian + actualAngle;
-            angleStep = calculatedAngle - M_PI_2;
-
-            // Check if we are outside part of the chart
-            if (calculatedAngle > halfSection && calculatedAngle < 2 * M_PI - halfSection) {
-                continue;
-            }
-            _image.setPixelColor(center.x() + i * cos(angleStep), center.y() + i * sin(angleStep), pointColor);
-        }
+    int i = 0;
+    for(auto point : points) {
+        pointColor = valueToRGB(point);
+        _image.setPixelColor(static_cast<int>(angle), i, pointColor);
+        i++;
     }
 
     // Fix max update in 20Hz at max
