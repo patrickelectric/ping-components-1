@@ -71,26 +71,26 @@ Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-
-            PolarPlot {
-                id: waterfall
-                height: Math.min(ping.sectorSize > 180 ? parent.height : parent.height*2, parent.width*scale)
+            ShaderEffect {
+                id: shader
+                height: waterfall.height
                 width: height
+                property variant src: waterfall
+                property var angle: 1
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: ping.sectorSize > 180 ? parent.verticalCenter : parent.bottom
 
-                property var scale: ping.sectorSize >= 180 ? 1 : 0.8/Math.sin(ping.sectorSize*Math.PI/360)
-                property bool verticalFlip: false
-                property bool horizontalFlip: false
+                property var shaderAngle: 0.1
+                property var shaderAngleMin: 0
+                property var shaderAngleWidth: 6.4
+                property var shaderRadius: 1
+                property var shaderRadiusMin: 1
+                property var shaderRadiusWidth: 2
+                //property var shaderCenter: {0, 0}
+                vertexShader: "qrc:/opengl/polarplot/vertex.glsl"
+                fragmentShader: "qrc:/opengl/polarplot/fragment.glsl"
 
-                transform: Rotation {
-                    origin.x: waterfall.width/2
-                    origin.y: waterfall.height/2
-                    axis { x: waterfall.verticalFlip; y: waterfall.horizontalFlip; z: 0 }
-                    angle: 180
-                }
-
-                // Spinner that shows the head angle
+                 // Spinner that shows the head angle
                 Shape {
                     id: shapeSpinner
                     opacity: 1
@@ -127,6 +127,26 @@ Item {
                         }
                     }
                 }
+            }
+
+            PolarPlot {
+                id: waterfall
+                height: Math.min(ping.sectorSize > 180 ? parent.height : parent.height*2, parent.width*scale)
+                width: height
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: ping.sectorSize > 180 ? parent.verticalCenter : parent.bottom
+
+                property var scale: ping.sectorSize >= 180 ? 1 : 0.8/Math.sin(ping.sectorSize*Math.PI/360)
+                property bool verticalFlip: false
+                property bool horizontalFlip: false
+                /*
+                transform: Rotation {
+                    origin.x: waterfall.width/2
+                    origin.y: waterfall.height/2
+                    axis { x: waterfall.verticalFlip; y: waterfall.horizontalFlip; z: 0 }
+                    angle: 180
+                }*/
+                visible: false
             }
 
             Text {
