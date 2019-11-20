@@ -21,6 +21,8 @@ PolarPlot::PolarPlot(QQuickItem* parent)
     , _maxDistance(0)
     , _painter(nullptr)
     , _sectorSizeDegrees(0)
+    , _vertexShader(new QOpenGLShader(QOpenGLShader::Vertex))
+	, _fragmentShader(new QOpenGLShader(QOpenGLShader::Fragment))
 {
     setAcceptedMouseButtons(Qt::AllButtons);
     setAcceptHoverEvents(true);

@@ -129,6 +129,6 @@ private:
     static uint16_t _angularResolution;
     QTimer _updateTimer;
 
-    QOpenGLShader* _vertexShader;
-    QOpenGLShader* _fragmentShader;
+    QSharedPointer<QOpenGLShader> _vertexShader;
+    QSharedPointer<QOpenGLShader> _fragmentShader;
 };
