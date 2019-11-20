@@ -70,8 +70,8 @@ void PolarPlot::updateMask()
     _polarBackgroundMask = newPath;
 #endif
     // Create a centered pizza path that has dynamic angles
-    _polarBackgroundMask.moveTo({width() / 2, height() / 2});
-    _polarBackgroundMask.arcTo({0, 0, width(), height()}, -_sectorSizeDegrees / 2 + 90, _sectorSizeDegrees);
+    //_polarBackgroundMask.moveTo({width() / 2, height() / 2});
+    //_polarBackgroundMask.arcTo({0, 0, width(), height()}, -_sectorSizeDegrees / 2 + 90, _sectorSizeDegrees);
 }
 
 void PolarPlot::clear()
@@ -93,7 +93,7 @@ void PolarPlot::paint(QPainter* painter)
     // http://blog.qt.io/blog/2006/05/13/fast-transformed-pixmapimage-drawing/
     pix = QPixmap::fromImage(_image, Qt::NoFormatConversion);
     //_painter->setClipPath(_polarBackgroundMask);
-    _painter->drawImage(QRect(0, 0, width(), height()), _backgroundImage);
+    //_painter->drawImage(QRect(0, 0, width(), height()), _backgroundImage);
     _painter->drawPixmap(QRect(0, 0, width(), height()), pix, QRect(0, 0, _image.width(), _image.height()));
 }
 
@@ -149,6 +149,7 @@ void PolarPlot::draw(
     if (!_updateTimer.isActive()) {
         _updateTimer.start(50);
     }
+    emit imageChanged();
 }
 
 void PolarPlot::updateMouseColumnData()
