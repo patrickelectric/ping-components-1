@@ -21,8 +21,8 @@ PolarPlot::PolarPlot(QQuickItem* parent)
     , _maxDistance(0)
     , _painter(nullptr)
     , _sectorSizeDegrees(0)
-    , _vertexShader(new QOpenGLShader(QOpenGLShader::Vertex))
-	, _fragmentShader(new QOpenGLShader(QOpenGLShader::Fragment))
+//    , _vertexShader(new QOpenGLShader(QOpenGLShader::Vertex))
+//    , _fragmentShader(new QOpenGLShader(QOpenGLShader::Fragment))
 {
     setAcceptedMouseButtons(Qt::AllButtons);
     setAcceptHoverEvents(true);
@@ -37,6 +37,28 @@ PolarPlot::PolarPlot(QQuickItem* parent)
     connect(this, &QQuickItem::widthChanged, this, &PolarPlot::updateMask);
     connect(this, &QQuickItem::heightChanged, this, &PolarPlot::updateMask);
     connect(this, &PolarPlot::sectorSizeDegreesChanged, this, &PolarPlot::updateMask);
+
+    initShaders();
+}
+
+void PolarPlot::initShaders()
+{
+
+    if (!_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/opengl/polarplot/vertex.glsl")) {
+        qWarning(polarplot) << "Failed to compile vertex:" << _program.log();
+    }
+
+    if (!_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/opengl/polarplot/fragment.glsl")) {
+        qWarning(polarplot) << "Failed to compile fragment:" << _program.log();
+    }
+
+    if (!_program.link()) {
+        qWarning(polarplot) << "Failed to link shaders:" << _program.log();
+    }
+
+    if (!_program.bind()) {
+        qWarning(polarplot) << "Failed to bind shaders:" << _program.log();
+    }
 }
 
 void PolarPlot::updateMask()

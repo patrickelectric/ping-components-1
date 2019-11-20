@@ -104,6 +104,12 @@ private:
     Q_DISABLE_COPY(PolarPlot)
 
     /**
+     * @brief Initialize shaders of shader program
+     *
+     */
+    void initShaders();
+
+    /**
      * @brief Update mouse column information
      *
      */
@@ -131,4 +137,5 @@ private:
 
     QSharedPointer<QOpenGLShader> _vertexShader;
     QSharedPointer<QOpenGLShader> _fragmentShader;
+    QOpenGLShaderProgram _program;
 };
