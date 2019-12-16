@@ -111,7 +111,11 @@ public:
     Q_INVOKABLE float getMinDepthToDraw() { return _minDepthToDraw; }
     Q_PROPERTY(float minDepthToDraw READ getMinDepthToDraw NOTIFY minDepthToDrawChanged)
 
+    Q_INVOKABLE double drawRatio() { return static_cast<double>(_currentDrawIndex + 1) / _image.width(); }
+    Q_PROPERTY(double drawRatio READ drawRatio NOTIFY drawRatioChanged)
+
 signals:
+    void drawRatioChanged();
     void imageChanged();
     void maxDepthToDrawChanged();
     void minDepthToDrawChanged();
