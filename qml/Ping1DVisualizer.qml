@@ -62,8 +62,20 @@ Item {
         orientation: Qt.Horizontal
         anchors.fill: parent
 
-        WaterfallPlot {
-            id: waterfall
+        ShaderEffect {
+            id: shader
+
+            WaterfallPlot {
+                id: waterfall
+                visible: false
+                anchors.fill: parent
+            }
+
+            property variant src: waterfall
+            property variant ratio: waterfall.drawRatio
+            vertexShader: "qrc:/opengl/waterfallplot/vertex.glsl"
+            fragmentShader: "qrc:/opengl/waterfallplot/fragment.glsl"
+
             Layout.fillHeight: true
             Layout.fillWidth: true
             Layout.preferredWidth: 350
