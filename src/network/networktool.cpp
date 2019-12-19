@@ -152,11 +152,7 @@ void NetworkTool::checkNewVersionInGitHubPayload(const QJsonDocument& jsonDocume
 
     QString newVersionText = QStringLiteral("New version: %1 - %2<br>%3")
                                  .arg(lastReleaseAvailable.versionString,
-                                     // TODO: Move the breakline feature to maddy after italic and bold PRs approved
-                                     QString::fromStdString(parser->Parse(markdownInput))
-                                         .remove("<p>")
-                                         .remove("</p>")
-                                         .replace("\r", "<br>"),
+                                     QString::fromStdString(parser->Parse(markdownInput)),
                                      QString("<a href=\"%1\">DOWNLOAD IT HERE!</a>").arg(downloadLink));
     NotificationManager::self()->create(newVersionText, "green", StyleManager::infoIcon());
 }
