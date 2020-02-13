@@ -79,7 +79,7 @@ public:
      *
      * @return uint32_t
      */
-    uint32_t ping_number() { return _ping_number; }
+    inline uint32_t ping_number() const { return _ping_number; }
     Q_PROPERTY(int ping_number READ ping_number NOTIFY pingNumberChanged)
 
     /**
@@ -100,7 +100,7 @@ public:
      *
      * @return uint16_t
      */
-    uint16_t transmit_duration() { return _sensorSettings.transmit_duration; }
+    inline uint16_t transmit_duration() const { return _sensorSettings.transmit_duration; }
     Q_PROPERTY(int transmit_duration READ transmit_duration WRITE set_transmit_duration NOTIFY transmitDurationChanged)
 
     /**
@@ -122,7 +122,7 @@ public:
      *
      * @return int
      */
-    int sample_period() { return _sensorSettings.sample_period; }
+    inline int sample_period() const { return _sensorSettings.sample_period; }
     Q_PROPERTY(int sample_period READ sample_period NOTIFY samplePeriodChanged)
 
     /**
@@ -141,7 +141,7 @@ public:
      *
      * @return int
      */
-    int transmit_frequency() { return _sensorSettings.transmit_frequency; }
+    inline int transmit_frequency() const { return _sensorSettings.transmit_frequency; }
     Q_PROPERTY(
         int transmit_frequency READ transmit_frequency WRITE set_transmit_frequency NOTIFY transmitFrequencyChanged)
 
@@ -163,14 +163,14 @@ public:
      * @brief The sonar communicates the sample_period in units of 25nsec ticks
      * @return inter-sample period in seconds
      */
-    double samplePeriod() { return _sensorSettings.sample_period * _samplePeriodTickDuration; }
+    inline double samplePeriod() const { return _sensorSettings.sample_period * _samplePeriodTickDuration; }
 
     /**
      * @brief return one-way range in meters
      *
      * @return uint32_t
      */
-    double range() { return samplePeriod() * _sensorSettings.num_points * _speed_of_sound / 2; }
+    inline double range() const { return samplePeriod() * _sensorSettings.num_points * _speed_of_sound / 2; }
 
     /**
      * @brief Set sensor window analysis size
@@ -207,7 +207,7 @@ public:
      *
      * @return uint32_t
      */
-    uint32_t gain_setting() { return _sensorSettings.gain_setting; }
+    inline uint32_t gain_setting() const { return _sensorSettings.gain_setting; }
 
     /**
      * @brief Set sensor gain index
@@ -234,7 +234,7 @@ public:
      *
      * @return uint32_t
      */
-    uint32_t speed_of_sound() { return _speed_of_sound; }
+    inline uint32_t speed_of_sound() const { return _speed_of_sound; }
 
     /**
      * @brief Set speed of sound (m/s) used for calculating distance from time-of-flight
@@ -261,7 +261,7 @@ public:
      *
      * @return int
      */
-    int angle_offset() { return _angle_offset; }
+    inline int angle_offset() const { return _angle_offset; }
 
     /**
      * @brief Set angle offset from sample position
@@ -282,7 +282,7 @@ public:
      *
      * @return uint
      */
-    int angular_speed() { return _angular_speed; }
+    inline int angular_speed() const { return _angular_speed; }
 
     /**
      * @brief Set the angular speed
@@ -303,7 +303,7 @@ public:
      *
      * @return bool
      */
-    bool reverse_direction() { return _reverse_direction; }
+    inline bool reverse_direction() const { return _reverse_direction; }
 
     /**
      * @brief Set reverse direction
@@ -324,7 +324,7 @@ public:
      *
      * @return int
      */
-    int number_of_points() { return _sensorSettings.num_points; }
+    inline int number_of_points() const { return _sensorSettings.num_points; }
 
     /**
      * @brief Set the number of points
@@ -347,7 +347,7 @@ public:
      *
      * @return int
      */
-    int sectorSize() { return round(_sectorSize * 360 / 400.0); }
+    inline int sectorSize() const { return round(_sectorSize * 360 / 400.0); }
 
     /**
      * @brief Set sector size in degrees
@@ -387,7 +387,7 @@ public:
      *
      * @return float
      */
-    float profileFrequency() { return messageFrequencies[Ping360Id::DEVICE_DATA].frequency; }
+    inline float profileFrequency() const { return messageFrequencies[Ping360Id::DEVICE_DATA].frequency; }
 
     Q_PROPERTY(float profileFrequency READ profileFrequency NOTIFY messageFrequencyChanged)
 
@@ -397,7 +397,7 @@ public:
      * The maximum transmit duration is equal to 64 * the sample period in microseconds
      * @return the maximum transmit duration allowed in microseconds
      */
-    int transmitDurationMin() { return _firmwareMinTransmitDuration; }
+    inline int transmitDurationMin() const { return _firmwareMinTransmitDuration; }
     Q_PROPERTY(int transmitDurationMin READ transmitDurationMin CONSTANT)
 
     /**
@@ -422,7 +422,7 @@ public:
      * @brief automatic transmit duration adjustment
      * @return true if transmit duration is automatically adjusted when the range is changed
      */
-    bool autoTransmitDuration() { return _autoTransmitDuration; }
+    inline bool autoTransmitDuration() const { return _autoTransmitDuration; }
     Q_PROPERTY(bool autoTransmitDuration READ autoTransmitDuration WRITE setAutoTransmitDuration NOTIFY
             autoTransmitDurationChanged)
 
@@ -431,7 +431,7 @@ public:
      *
      * @return float
      */
-    float heading() { return _heading; }
+    inline float heading() const { return _heading; }
     Q_PROPERTY(float heading READ heading NOTIFY headingChanged)
 
     /**
@@ -678,7 +678,7 @@ private:
          *
          * @param number of messages
          */
-        void updateNumberOfMessages(int number = 1) { numberOfMessages += number; }
+        inline void updateNumberOfMessages(int number = 1) { numberOfMessages += number; }
 
         /**
          * @brief Update frequency of structure with the elapsed time between calls
