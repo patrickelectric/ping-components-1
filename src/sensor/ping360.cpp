@@ -171,6 +171,7 @@ void Ping360::connectLink(LinkType connType, const QStringList& connString)
 
 void Ping360::requestNextProfile()
 {
+    /*
     // Calculate the next delta step
     int steps = _angular_speed;
     if (_reverse_direction) {
@@ -198,7 +199,14 @@ void Ping360::requestNextProfile()
         steps = -angle();
     }
 
-    deltaStep(steps);
+    deltaStep(steps);*/
+    ping360_auto_transmit auto_transmit;
+    auto_transmit.set_start_angle(0);
+    auto_transmit.set_stop_angle(399);
+    auto_transmit.set_num_steps(1);
+    auto_transmit.set_delay(0);
+    auto_transmit.updateChecksum();
+    writeMessage(auto_transmit);
 }
 
 void Ping360::handleMessage(const ping_message& msg)
@@ -224,12 +232,14 @@ void Ping360::handleMessage(const ping_message& msg)
         } else {
             _baudrateConfigurationTimer.stop();
             _timeoutProfileMessage.start();
-            requestNextProfile();
+            //requestNextProfile();
         }
         return;
     }
 
     case Ping360Id::DEVICE_DATA: {
+        qDebug() << QStringLiteral("freq: %1 Hz").arg(profileFrequency());
+
         // Parse message
         const ping360_device_data deviceData = *static_cast<const ping360_device_data*>(&msg);
 
@@ -238,7 +248,7 @@ void Ping360::handleMessage(const ping_message& msg)
 
         // Request next message ASAP
         // request another transmission
-        requestNextProfile();
+        //requestNextProfile();
 
         // Restart timer, if the channel allows it
         if (link()->isWritable()) {
@@ -295,7 +305,7 @@ void Ping360::handleMessage(const ping_message& msg)
             set_number_of_points(_viewerDefaultNumberOfSamples);
 
             // request another transmission
-            requestNextProfile();
+            //requestNextProfile();
 
             // restart timer
             _timeoutProfileMessage.start();
