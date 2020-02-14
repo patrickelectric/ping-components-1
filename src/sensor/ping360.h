@@ -626,6 +626,40 @@ private:
     QVector<double> _data;
     ///@}
 
+    /**
+     * @brief Struct to deal with profile request logic and sensor state
+     *
+     */
+    struct Ping360RequestStateStruct {
+        enum class Type {
+            /**
+             * @brief Legacy request logic
+             *  It's based in a sync ping-pong request-reply approach,
+             *  each request creates a single reply.
+             */
+            Legacy,
+
+            /**
+             * @brief Async request logic
+             *  It's based in async requests for the profiles message (DEVICE_DATA [2300]),
+             *  a request can create multiple replies.
+             *  New `auto_transmit` message.
+             */
+            AutoTransmitAsync,
+        };
+
+        enum class Ping360RequestState {
+            Uninitialized,
+            Initializing,
+            Idle,
+            PendingOperation,
+            Busy,
+        };
+
+        Type type = Type::Legacy;
+        Ping360RequestState state = Ping360RequestState::Uninitialized;
+    } profileRequestLogic;
+
     // Number of messages to check for best baud rate
     // using Auto Baud Rate detection
     static const int _ABRTotalNumberOfMessages = 20;
@@ -746,6 +780,20 @@ private:
      *
      */
     void requestNextProfile();
+
+    /**
+     * @brief Legacy profile request
+     *  Used in firmwares up to X.X.X
+     *
+     */
+    void legacyProfileRequest();
+
+    /**
+     * @brief Async profile request
+     *  Used in firmwares from X.X.X
+     *
+     */
+    void asyncProfileRequest();
 
     /**
      * @brief Internal function used to use as a flash callback

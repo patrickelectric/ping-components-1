@@ -97,6 +97,31 @@ Ping360::Ping360()
         emit messageFrequencyChanged();
     });
 
+    connect(this, &Ping360::firmwareVersionMinorChanged, this, [this] {
+        // Wait for firmware information to be available before looking for new versions
+        static bool once = false;
+        if (!once &&  _commonVariables.deviceInformation.initialized) {
+            once = true;
+
+            if( // TODO: Change this to use the released firmware version with the async message
+                _commonVariables.deviceInformation.firmware_version_major == 0 &&
+                _commonVariables.deviceInformation.firmware_version_minor == 0 &&
+                _commonVariables.deviceInformation.firmware_version_patch == 0
+            ) {
+                profileRequestLogic.type = Ping360RequestStateStruct::Type::AutoTransmitAsync;
+            } else {
+                profileRequestLogic.type = Ping360RequestStateStruct::Type::Legacy;
+            }
+        }
+    });
+
+    connect(MavlinkManager::self(), &MavlinkManager::mavlinkMessage, this, [this](const auto& message) {
+        mavlink_attitude_t attitude;
+        mavlink_msg_attitude_decode(&message, &attitude);
+        _heading = attitude.yaw * 200 / M_PI;
+        emit headingChanged();
+    });
+
     // By default heading integration is enabled
     enableHeadingIntegration(true);
 }
@@ -171,7 +196,18 @@ void Ping360::connectLink(LinkType connType, const QStringList& connString)
 
 void Ping360::requestNextProfile()
 {
-    /*
+    switch (profileRequestLogic.type) {
+        case Ping360RequestStateStruct::Type::AutoTransmitAsync:
+            asyncProfileRequest();
+            break;
+        default:// Ping360RequestType::Legacy is our default
+            legacyProfileRequest();
+            break;
+    }
+}
+
+void Ping360::legacyProfileRequest()
+{
     // Calculate the next delta step
     int steps = _angular_speed;
     if (_reverse_direction) {
@@ -199,14 +235,25 @@ void Ping360::requestNextProfile()
         steps = -angle();
     }
 
-    deltaStep(steps);*/
-    ping360_auto_transmit auto_transmit;
-    auto_transmit.set_start_angle(0);
-    auto_transmit.set_stop_angle(399);
-    auto_transmit.set_num_steps(1);
-    auto_transmit.set_delay(0);
-    auto_transmit.updateChecksum();
-    writeMessage(auto_transmit);
+    deltaStep(steps);
+}
+
+void Ping360::asyncProfileRequest()
+{
+    qDebug() << "range:" << _angularResolutionGrad - _sectorSize / 2 << _sectorSize / 2 - 1<< _angular_speed;
+
+    static bool once = false;
+    if (!once) {
+        once = true;
+        ping360_auto_transmit auto_transmit;
+        auto_transmit.set_start_angle(angle_offset() - _sectorSize / 2);
+        auto_transmit.set_stop_angle(angle_offset() + _sectorSize / 2);
+        auto_transmit.set_num_steps(_angular_speed);
+        auto_transmit.set_delay(0);
+        auto_transmit.updateChecksum();
+
+        writeMessage(auto_transmit);
+    }
 }
 
 void Ping360::handleMessage(const ping_message& msg)
@@ -232,7 +279,7 @@ void Ping360::handleMessage(const ping_message& msg)
         } else {
             _baudrateConfigurationTimer.stop();
             _timeoutProfileMessage.start();
-            //requestNextProfile();
+            requestNextProfile();
         }
         return;
     }
@@ -248,7 +295,7 @@ void Ping360::handleMessage(const ping_message& msg)
 
         // Request next message ASAP
         // request another transmission
-        //requestNextProfile();
+        requestNextProfile();
 
         // Restart timer, if the channel allows it
         if (link()->isWritable()) {
@@ -305,7 +352,7 @@ void Ping360::handleMessage(const ping_message& msg)
             set_number_of_points(_viewerDefaultNumberOfSamples);
 
             // request another transmission
-            //requestNextProfile();
+            requestNextProfile();
 
             // restart timer
             _timeoutProfileMessage.start();
