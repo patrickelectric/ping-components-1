@@ -2,6 +2,8 @@
  * Based over: https://gist.github.com/KeyMaster-/2bb5e20f824241f3caef
  * Tilman Schmidt [KeyMaster-] example
  */
+precision mediump float;
+
 uniform sampler2D src;
 uniform float angle;
 varying vec2 coord;
