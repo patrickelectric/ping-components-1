@@ -1,0 +1,6 @@
+Ping1D has an unstable ABR procedure, where it fails to communicate with 115200 or 9600
+in a not deterministic way.
+Such problem breaks the find device logic, where Ping1D fails to answer 115200 and
+answers with 9600, this will make the 9600 baud rate valid and invalidate 115200 baud rates.
+To avoid such problem, we are going to drop 9600 baud rate and ask the user to use manual connection.
+The user can also update the firmware to use the automatic baud rate feature.
