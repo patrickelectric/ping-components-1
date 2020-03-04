@@ -198,7 +198,9 @@ void Ping360::requestNextProfile()
         case Ping360RequestStateStruct::Type::AutoTransmitAsync:
             asyncProfileRequest();
             break;
-        default:// Ping360RequestType::Legacy is our default
+
+        case Ping360RequestStateStruct::Type::Legacy:
+        default:
             legacyProfileRequest();
             break;
     }
