@@ -115,13 +115,6 @@ Ping360::Ping360()
         }
     });
 
-    connect(MavlinkManager::self(), &MavlinkManager::mavlinkMessage, this, [this](const auto& message) {
-        mavlink_attitude_t attitude;
-        mavlink_msg_attitude_decode(&message, &attitude);
-        _heading = attitude.yaw * 200 / M_PI;
-        emit headingChanged();
-    });
-
     _profileRequestLogic.state = Ping360RequestStateStruct::State::Uninitialized;
 
     // By default heading integration is enabled
