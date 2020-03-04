@@ -108,9 +108,9 @@ Ping360::Ping360()
                 _commonVariables.deviceInformation.firmware_version_minor == 0 &&
                 _commonVariables.deviceInformation.firmware_version_patch == 0
             ) {
-                profileRequestLogic.type = Ping360RequestStateStruct::Type::AutoTransmitAsync;
+                _profileRequestLogic.type = Ping360RequestStateStruct::Type::AutoTransmitAsync;
             } else {
-                profileRequestLogic.type = Ping360RequestStateStruct::Type::Legacy;
+                _profileRequestLogic.type = Ping360RequestStateStruct::Type::Legacy;
             }
         }
     });
@@ -122,12 +122,16 @@ Ping360::Ping360()
         emit headingChanged();
     });
 
+    _profileRequestLogic.state = Ping360RequestStateStruct::State::Uninitialized;
+
     // By default heading integration is enabled
     enableHeadingIntegration(true);
 }
 
 void Ping360::startPreConfigurationProcess()
 {
+    _profileRequestLogic.state = Ping360RequestStateStruct::State::Initializing;
+
     // Force the default settings
     resetSettings();
 
@@ -145,6 +149,7 @@ void Ping360::startPreConfigurationProcess()
         if (_baudrateConfigurationTimer.isActive()) {
             _baudrateConfigurationTimer.stop();
         }
+        _profileRequestLogic.state = Ping360RequestStateStruct::State::Idle;
     }
 
     // Fetch sensor configuration to update class variables
@@ -196,7 +201,7 @@ void Ping360::connectLink(LinkType connType, const QStringList& connString)
 
 void Ping360::requestNextProfile()
 {
-    switch (profileRequestLogic.type) {
+    switch (_profileRequestLogic.type) {
         case Ping360RequestStateStruct::Type::AutoTransmitAsync:
             asyncProfileRequest();
             break;
@@ -240,10 +245,21 @@ void Ping360::legacyProfileRequest()
 
 void Ping360::asyncProfileRequest()
 {
-    qDebug() << "range:" << _angularResolutionGrad - _sectorSize / 2 << _sectorSize / 2 - 1<< _angular_speed;
+    qDebug() << "range:" << angle_offset() - _sectorSize / 2 << angle_offset() + _sectorSize / 2;
 
+    //TODO: Rename this, is not not once
     static bool once = false;
-    if (!once) {
+
+    qDebug() << "valid" << _sensorSettings.valid << "once" << once << "state" << (int)_profileRequestLogic.state;
+
+    if (_data.size()) {
+        _profileRequestLogic.state = Ping360RequestStateStruct::State::Busy;
+    } else {
+        _profileRequestLogic.state = Ping360RequestStateStruct::State::Idle;
+    }
+
+    if (_profileRequestLogic.state != Ping360RequestStateStruct::State::Busy) {
+        qDebug() << "NOOOOOO";
         once = true;
         ping360_auto_transmit auto_transmit;
         auto_transmit.set_start_angle(angle_offset() - _sectorSize / 2);
@@ -252,7 +268,17 @@ void Ping360::asyncProfileRequest()
         auto_transmit.set_delay(0);
         auto_transmit.updateChecksum();
 
+        _profileRequestLogic.state = Ping360RequestStateStruct::State::PendingOperation;
+
         writeMessage(auto_transmit);
+    }
+
+    if (!_sensorSettings.valid)
+    {
+
+        deltaStep(0, false);
+        once = false;
+        _profileRequestLogic.state = Ping360RequestStateStruct::State::PendingOperation;
     }
 }
 
@@ -506,6 +532,7 @@ void Ping360::detectBaudrates()
     // We are in the end of the list or someone is the winner!
     if (index == validBaudRates().size() - 1 || lastCounter == 0) {
         _configuring = false;
+        _profileRequestLogic.state = Ping360RequestStateStruct::State::Idle;
 
         // The actual baud rate is the winner, don't need to set a new one
         if (lastCounter == 0) {

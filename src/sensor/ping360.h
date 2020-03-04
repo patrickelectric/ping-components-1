@@ -648,7 +648,7 @@ private:
             AutoTransmitAsync,
         };
 
-        enum class Ping360RequestState {
+        enum class State {
             Uninitialized,
             Initializing,
             Idle,
@@ -657,8 +657,8 @@ private:
         };
 
         Type type = Type::Legacy;
-        Ping360RequestState state = Ping360RequestState::Uninitialized;
-    } profileRequestLogic;
+        State state = State::Uninitialized;
+    } _profileRequestLogic;
 
     // Number of messages to check for best baud rate
     // using Auto Baud Rate detection
