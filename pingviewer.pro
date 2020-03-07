@@ -69,7 +69,6 @@ CONFIG(debug, debug|release) {
     # Enable fast flags
     *-g++ | *-clang {
         QMAKE_CXXFLAGS += -Ofast \
-            -Werror \
 
     }
 
