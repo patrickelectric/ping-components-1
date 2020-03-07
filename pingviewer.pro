@@ -25,7 +25,6 @@ RESOURCES += \
 # Warning as error
 *-g++ | *-clang {
     QMAKE_CXXFLAGS += \
-        -Werror \
         -Wall \
         -Wextra \
         -Wnon-virtual-dtor \
@@ -68,7 +67,9 @@ CONFIG(debug, debug|release) {
 
     # Enable fast flags
     *-g++ | *-clang {
-        QMAKE_CXXFLAGS += -Ofast
+        QMAKE_CXXFLAGS += -Ofast \
+            -Werror \
+
     }
 
     *msvc {
