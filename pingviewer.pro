@@ -37,6 +37,7 @@ RESOURCES += \
             -Wduplicated-cond \
             -Wduplicated-branches \
             -Wlogical-op \
+            -Wsuggest-attribute=const \
 
     }
 
