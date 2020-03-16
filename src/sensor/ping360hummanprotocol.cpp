@@ -11,7 +11,6 @@ Ping360DiscoveryResponse Ping360HummamProtocol::decodeDiscoveryResponse(const QS
         line = line.trimmed();
     };
 
-
     if (lines.size() == Ping360DiscoveryResponse::numberOfLines) {
         return {.deviceName = lines[0], .organization = lines[1], .macAddress = lines[2], .ipAddress = lines[3]};
     }
