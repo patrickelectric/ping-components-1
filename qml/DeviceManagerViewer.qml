@@ -5,6 +5,8 @@ import QtQuick.Extras 1.4
 import QtQuick.Layouts 1.3
 
 import DeviceManager 1.0
+import PingEnumNamespace 1.0
+import StyleManager 1.0
 
 PingPopup {
     id: root
@@ -212,7 +214,25 @@ PingPopup {
                             text: connection.typeToString() + " " + connection.createConfString()
                         }
 
+                        PingImage {
+                            visible: connection.deviceType() == PingEnumNamespace.PingDeviceType.PING360
+                            source: StyleManager.settingsIcon()
+                            height: parent.height
+                            width: height
+                            selected: deviceConfigureMouseArea.containsMouse
+                            anchors.right: statusIndicator.left
+                            MouseArea {
+                                id: deviceConfigureMouseArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                onClicked: {
+                                    root.close()
+                                }
+                            }
+                        }
+
                         StatusIndicator {
+                            id: statusIndicator
                             Layout.preferredHeight: 20
                             Layout.preferredWidth: 20
                             Layout.rightMargin: 5
