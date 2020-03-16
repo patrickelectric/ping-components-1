@@ -1,6 +1,7 @@
 #include <QUdpSocket>
 
 #include "ping360ethernetfinder.h"
+#include "ping360hummanprotocol.h"
 
 Ping360EthernetFinder::Ping360EthernetFinder()
 {
@@ -14,7 +15,7 @@ void Ping360EthernetFinder::doBroadcast()
 {
     // We broadcast a "Discovery" message to 255.255.255.255 and port 30303 as
     // described in the communications manual.
-    QByteArray datagram = "Discovery";
+    QByteArray datagram = Ping360HummamProtocol::discoveryMessage();
     _broadcastSocket.writeDatagram(datagram, QHostAddress::Broadcast, 30303);
     _broadcastSocket.writeDatagram(datagram, QHostAddress("192.168.2.255"), 30303);
 }
@@ -28,8 +29,9 @@ void Ping360EthernetFinder::processBroadcastResponses()
         _broadcastSocket.readDatagram(datagram.data(), datagram.size(), &sender);
         // Make sure we have an IPV4 address, and not something like "::ffff:192.168.1.1"
         sender = QHostAddress(sender.toIPv4Address());
-        // Basic validation to check we didn't get some lost packet from wherever
-        if (datagram.contains("PING360")) {
+
+        Ping360DiscoveryResponse decoded = Ping360HummamProtocol::decodeDiscoveryResponse(datagram);
+        if (decoded.deviceName.contains("PING360")) {
             emit availableLinkFound(
                 {{LinkType::Udp, {sender.toString(), "12345"}, "Ping360 Port", PingDeviceType::PING360}},
                 QStringLiteral("Ping360 Ethernet Protocol Detector"));
