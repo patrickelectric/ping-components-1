@@ -12,4 +12,5 @@ PRIVATE
     Qt5::Core
     Qt5::Qml
     Qt5::Widgets # because of QColor
+    ping-cpp
 )

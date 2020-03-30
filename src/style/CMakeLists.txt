@@ -11,4 +11,5 @@ PRIVATE
     Qt5::Gui
     Qt5::Widgets
     Qt5::Qml
+    ping-cpp
 )

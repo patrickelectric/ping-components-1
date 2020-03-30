@@ -10,4 +10,5 @@ PRIVATE
     Qt5::Core
     Qt5::Widgets
     Qt5::Quick
+    ping-cpp
 )

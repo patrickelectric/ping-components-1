@@ -11,4 +11,5 @@ PRIVATE
     Qt5::Network
     Qt5::Qml
     Qt5::Quick
+    ping-cpp
 )

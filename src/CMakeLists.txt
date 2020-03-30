@@ -24,8 +24,10 @@ endforeach()
 add_executable(ping-viewer
     main.cpp
     ../resources.qrc
-    ../lib/ping-cpp/ping-cpp/src/message/ping-message-all.h
+    #../lib/ping-cpp/ping-cpp/src/message/ping-message-all.h
 )
+
+message("POTATO ${ping-cpp}")
 
 target_link_libraries(
     ping-viewer
@@ -37,5 +39,6 @@ PRIVATE
     Qt5::Charts
     Qt5::Widgets # QApplication
     ${INCLUDE_DIRS}
+    ping-cpp
     fmt::fmt
 )

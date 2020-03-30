@@ -17,9 +17,12 @@ STATIC
     abstractlinknamespace.h
 )
 
+MESSAGE("POTATOOOOOO2 ${PING_CPP_INCLUDE_DIR} ${CMAKE_SOURCE_DIR} ${ping-cpp}")
+
 target_link_libraries(
     link
 PRIVATE
+    ping-cpp
     Qt5::Core
     Qt5::Network
     Qt5::SerialPort

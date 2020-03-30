@@ -245,6 +245,19 @@ void Ping360::legacyProfileRequest()
 void Ping360::asyncProfileRequest()
 {
     if (!_sensorSettings.valid) {
+        qWarning() << "invalid\n";
+        transducer_message.set_mode(1);
+        transducer_message.set_gain_setting(_sensorSettings.gain_setting);
+        transducer_message.set_angle(_angle);
+        transducer_message.set_transmit_duration(_sensorSettings.transmit_duration);
+        transducer_message.set_sample_period(_sensorSettings.sample_period);
+        transducer_message.set_transmit_frequency(_sensorSettings.transmit_frequency);
+        transducer_message.set_number_of_samples(_sensorSettings.num_points);
+        transducer_message.set_transmit(true);
+
+        transducer_message.updateChecksum();
+        writeMessage(transducer_message);
+
         qCDebug(PING_PROTOCOL_PING360) << "Invalid automatic sensor configuration, sending message.";
         ping360_auto_transmit auto_transmit;
         _sensorSettings.start_angle = angle_offset() - _sectorSize / 2;
@@ -678,7 +691,7 @@ Ping360::~Ping360() {
     // The sensor will stop any automatic behaviour when receiving a normal profile request message
     if(_profileRequestLogic.type != Ping360RequestStateStruct::Type::Legacy) {
         for(int i{0}; i < 10; i++) {
-            deltaStep(0);
+            //deltaStep(0);
             QThread::msleep(100);
         }
     }
