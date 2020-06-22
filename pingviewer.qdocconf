@@ -1,0 +1,14 @@
+project = Ping Viewer
+description = Graphical user interface for the Blue Robotics Ping echosounder.
+url = https://github.com/bluerobotics/ping-viewer
+
+sourcedirs = ./
+sources.fileextensions = "*.qml *.cpp"
+headers.fileextensions = "*.h"
+
+syntaxhighlighting = true
+sourceencoding = UTF-8
+outputencoding = UTF-8
+
+outputdir = qdoc
+outputformats = HTML
