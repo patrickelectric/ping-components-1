@@ -1,0 +1,23 @@
+name: Deploy mavlink2rest
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+  steps:
+  - name: Cache Qt
+    id: cache-qt
+    uses: actions/cache@v1
+    with:
+      path: ../Qt
+      key: ${{ runner.os }}-QtCache
+
+  - name: Install Qt
+    uses: jurplel/install-qt-action@v2
+    with:
+      version: '5.15'
+      target: 'desktop'
+      cached: ${{ steps.cache-qt.outputs.cache-hit }}
+      modules: qtcharts
