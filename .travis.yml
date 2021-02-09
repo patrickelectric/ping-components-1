@@ -4,15 +4,9 @@ git:
   depth: 1
 
 python: 3.8
-addons:
-  apt:
-    update: true
-    packages:
-      - python3-pip
-      - python3-setuptools
 
 install:
-  - pip3 install mkdocs-material --user
+  - pip install mkdocs-material --user
   - gem install html-proofer
 
 script:
