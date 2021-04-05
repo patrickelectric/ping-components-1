@@ -50,6 +50,10 @@ add_executable(pingviewer
     ${SOURCES}
 )
 
+# Disable default debug build for windows
+## Windows will build in Debug mode if only release is used in configuration
+set_property(TARGET pingviewer PROPERTY EXCLUDE_FROM_DEFAULT_BUILD_DEBUG TRUE)
+
 target_link_libraries(
     pingviewer
 PRIVATE
