@@ -32,8 +32,23 @@ jobs:
         pip install --user --upgrade pip;
         pip install --user jinja2;
 
+    - name: Load cache
+      uses: actions/cache@v2
+      id: cache
+      with:
+        path: ~/.ccache
+        key: ${{ runner.os }}-ccache-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-ccache-${{ github.sha }}
+          ${{ runner.os }}-ccache
+
+    - name: Clear cache status
+      run: ccache -z
+
     - name: Build Linux
       if: runner.os == 'Linux'
+      env:
+        CCACHE_DIR: ~/.ccache
       run: |
         sudo apt update
         sudo apt install libxcb-*
@@ -42,6 +57,8 @@ jobs:
 
     - name: Build Mac
       if: runner.os == 'macOS'
+      env:
+        CCACHE_DIR: ~/.ccache
       run: |
         ./tools/compile.sh
         mv /tmp/ping* .
@@ -49,6 +66,7 @@ jobs:
     - name: Build Windows
       if: runner.os == 'Windows'
       env:
+        CCACHE_DIR: ~/.ccache
         OPENSSL: 'C:\Program Files\OpenSSL\bin'
         SYSTEM32: 'C:\windows\system32'
         SYSTEM32_DLLS: 'VCRUNTIME140.dll MSVCP140.dll ucrtbased.dll'
@@ -62,6 +80,9 @@ jobs:
         curl https://github.com/bluerobotics/stm32flash-code/releases/download/continuous/stm32flash.exe -o deploy/stm32flash.exe
         foreach ($I in (${env:SYSTEM32_DLLS} -split ' ')) { copy ${env:SYSTEM32}\$I deploy\ }
         windeployqt --qmldir qml --release deploy/pingviewer.exe --verbose=2
+
+    - name: Show cache status
+      run: ccache -s
 
     - name: Zip windows
       uses: papeloto/action-zip@v1
